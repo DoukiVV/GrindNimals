@@ -327,6 +327,52 @@ local function scaleDetectedCurrency()
 	end
 end
 
+
+local function findGuiObjectAnywhere(name)
+	local object = playerGui:FindFirstChild(name, true)
+	if object and object:IsA("GuiObject") then
+		return object
+	end
+	return nil
+end
+
+local function scaleNamedCurrencyContainers()
+	local view = viewport()
+	local compact = isCompact()
+	local landscapePhone = isLandscapePhone()
+	if not compact and not landscapePhone then
+		return
+	end
+
+	-- These are the actual runtime objects shown in Studio Explorer. They may be
+	-- created/controlled by MoneyDisplayClient and DiamondDisplayClient, so we
+	-- scale the OUTER containers instead of fighting their TextLabel properties.
+	local money = findGuiObjectAnywhere("Dinero")
+	local diamonds = findGuiObjectAnywhere("Diamantes")
+
+	local ratio
+	if landscapePhone then
+		ratio = math.min(view.X / 980, view.Y / 540)
+	else
+		ratio = viewportScale()
+	end
+
+	-- Reference preview uses compact cards in the top-right corner.
+	local scale = math.clamp(ratio * 0.62, 0.24, 0.62)
+
+	if money then
+		money.AnchorPoint = Vector2.new(1, 0)
+		money.Position = UDim2.new(1, -10, 0, 8)
+		applyDeviceScale(money, scale)
+	end
+
+	if diamonds then
+		diamonds.AnchorPoint = Vector2.new(1, 0)
+		diamonds.Position = UDim2.new(1, -10, 0, 56)
+		applyDeviceScale(diamonds, scale)
+	end
+end
+
 local function layoutKnownInterfaces()
 	local compact = isCompact()
 	local landscapePhone = isLandscapePhone()
@@ -510,6 +556,7 @@ local function refresh()
 	queued = false
 
 	layoutKnownInterfaces()
+	scaleNamedCurrencyContainers()
 	scaleDetectedCurrency()
 	visit(playerGui, nil)
 

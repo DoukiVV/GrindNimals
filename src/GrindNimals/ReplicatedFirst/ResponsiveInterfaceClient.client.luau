@@ -250,6 +250,7 @@ local function keepEstablishedHudLayout()
 		local settingsFrame = settings and settings:FindFirstChild("Frame")
 		if settingsFrame and settingsFrame:IsA("GuiObject") then
 			settingsFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+			settingsFrame.Size = UDim2.fromOffset(270, 170)
 			settingsFrame.Position = UDim2.fromScale(0.5, 0.5)
 			fit(settingsFrame)
 		end
@@ -260,12 +261,14 @@ local function keepEstablishedHudLayout()
 		local money = hud:FindFirstChild("Dinero")
 		if money and money:IsA("GuiObject") then
 			money.AnchorPoint = Vector2.new(1, 0)
+			money.Size = UDim2.fromOffset(190, 170)
 			money.Position = UDim2.new(1, -4, 0, -62)
 		end
 
 		local diamonds = hud:FindFirstChild("Diamantes")
 		if diamonds and diamonds:IsA("GuiObject") then
 			diamonds.AnchorPoint = Vector2.new(1, 0)
+			diamonds.Size = UDim2.fromOffset(145, 130)
 			diamonds.Position = UDim2.new(1, -20, 0, -3)
 		end
 	end
@@ -292,6 +295,7 @@ local function keepEstablishedHudLayout()
 	local clockFrame = clock and clock:FindFirstChild("ClockFrame")
 	if clockFrame and clockFrame:IsA("GuiObject") then
 		clockFrame.AnchorPoint = Vector2.zero
+		clockFrame.Size = UDim2.fromOffset(110, 42)
 		clockFrame.Position = UDim2.fromOffset(12, 4)
 	end
 
@@ -299,6 +303,7 @@ local function keepEstablishedHudLayout()
 	local helpButton = tutorial and tutorial:FindFirstChild("HelpButton")
 	if helpButton and helpButton:IsA("GuiObject") then
 		helpButton.AnchorPoint = Vector2.zero
+		helpButton.Size = UDim2.fromOffset(48, 48)
 		helpButton.Position = UDim2.fromOffset(16, 50)
 	end
 end

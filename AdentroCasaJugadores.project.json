@@ -2,65 +2,190 @@
   "name": "GrindNimals - AdentroCasaJugadores",
   "tree": {
     "$className": "DataModel",
-    "Workspace": {
-      "$path": "src/AdentroCasaJugadores/Workspace",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedFirst": {
-      "$path": "src/AdentroCasaJugadores/ReplicatedFirst",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedStorage": {
-      "$path": "src/AdentroCasaJugadores/ReplicatedStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerScriptService": {
-      "$path": "src/AdentroCasaJugadores/ServerScriptService",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerStorage": {
-      "$path": "src/AdentroCasaJugadores/ServerStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterGui": {
-      "$path": "src/AdentroCasaJugadores/StarterGui",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPack": {
-      "$path": "src/AdentroCasaJugadores/StarterPack",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPlayer": {
-      "$path": "src/AdentroCasaJugadores/StarterPlayer",
-      "$ignoreUnknownInstances": true
+    "Chat": {
+      "$properties": {
+        "BubbleChatEnabled": true,
+        "IsAutoMigrated": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/Chat"
     },
     "Lighting": {
-      "$path": "src/AdentroCasaJugadores/Lighting",
-      "$ignoreUnknownInstances": true
-    },
-    "SoundService": {
-      "$path": "src/AdentroCasaJugadores/SoundService",
-      "$ignoreUnknownInstances": true
-    },
-    "Teams": {
-      "$path": "src/AdentroCasaJugadores/Teams",
-      "$ignoreUnknownInstances": true
-    },
-    "TextChatService": {
-      "$path": "src/AdentroCasaJugadores/TextChatService",
-      "$ignoreUnknownInstances": true
-    },
-    "Chat": {
-      "$path": "src/AdentroCasaJugadores/Chat",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Ambient": [
+          0.47058823704719543,
+          0.47058823704719543,
+          0.47058823704719543
+        ],
+        "Brightness": 1.0,
+        "EnvironmentDiffuseScale": 1.0,
+        "EnvironmentSpecularScale": 1.0,
+        "ExposureCompensation": 0.4000000059604645,
+        "FogColor": [
+          0.7529412508010864,
+          0.7529412508010864,
+          0.7529412508010864
+        ],
+        "GeographicLatitude": 0.0,
+        "GlobalShadows": true,
+        "LightingStyle": "Realistic",
+        "OutdoorAmbient": [
+          0.3137255012989044,
+          0.3333333432674408,
+          0.3529411852359772
+        ],
+        "Outlines": false,
+        "PrioritizeLightingQuality": true,
+        "ShadowSoftness": 0.20000000298023224,
+        "Technology": "ShadowMap",
+        "TimeOfDay": "14:30:00"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/Lighting"
     },
     "LocalizationService": {
-      "$path": "src/AdentroCasaJugadores/LocalizationService",
-      "$ignoreUnknownInstances": true
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/LocalizationService"
     },
     "MaterialService": {
-      "$path": "src/AdentroCasaJugadores/MaterialService",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Use2022MaterialsXml": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/MaterialService"
+    },
+    "ReplicatedFirst": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/ServerScriptService"
+    },
+    "ServerStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/ServerStorage"
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/SoundService"
+    },
+    "StarterGui": {
+      "$properties": {
+        "ScreenOrientation": "Sensor"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/StarterGui"
+    },
+    "StarterPack": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/StarterPack"
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 128.0,
+        "CharacterUseJumpPower": false
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/StarterPlayer"
+    },
+    "Teams": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/Teams"
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService",
+        "PlatformIntegratedChat": {
+          "Enum": 0
+        }
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/TextChatService"
+    },
+    "Workspace": {
+      "$properties": {
+        "AutoSimulate": {
+          "Bool": true
+        },
+        "ExpandedTerrain": {
+          "Enum": 0
+        },
+        "GravityDirection": {
+          "Vector3": [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        "MapTVRemoteToGamepadKeycodes": {
+          "Enum": 0
+        },
+        "PredictiveStreamingMode": {
+          "Enum": 0
+        },
+        "SignalBehavior": "Deferred",
+        "SimulationRate": {
+          "Float32": 1.0
+        },
+        "StreamOutBehavior": "Opportunistic",
+        "StreamingAdaptiveRadius": {
+          "Bool": false
+        },
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea",
+        "UseInputSink": {
+          "Enum": 0
+        },
+        "Wind": {
+          "Float32": 0.0
+        },
+        "WindDirection": {
+          "Vector3": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "WorldPivotData": {
+          "OptionalCFrame": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      "$attributes": {
+        "HouseGardenSystemsUpdated": true,
+        "Rojo_Target_CurrentCamera": "6d6ae1d713c82fae0620aa1300000375"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/AdentroCasaJugadores/Workspace"
     }
   }
 }

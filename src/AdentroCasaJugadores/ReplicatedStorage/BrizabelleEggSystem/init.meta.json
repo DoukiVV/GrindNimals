@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "IconTint": {
+      "Color3": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "attributes": {
+    "InstantHatchPriceRobux": 750.0,
+    "InstantHatchProductId": 3691475697.0
+  }
+}

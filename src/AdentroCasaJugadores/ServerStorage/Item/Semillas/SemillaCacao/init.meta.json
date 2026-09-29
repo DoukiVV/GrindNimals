@@ -1,0 +1,32 @@
+{
+  "properties": {
+    "WorldPivotData": {
+      "OptionalCFrame": {
+        "position": [
+          193.46585,
+          0.4278779,
+          170.06079
+        ],
+        "orientation": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    "TextureContent": "rbxassetid://130395328403950"
+  },
+  "className": "Tool"
+}

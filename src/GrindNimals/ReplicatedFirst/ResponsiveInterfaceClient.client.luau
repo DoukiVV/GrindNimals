@@ -32,7 +32,9 @@ local function viewportScale()
 		view.X / REFERENCE_VIEWPORT.X,
 		view.Y / REFERENCE_VIEWPORT.Y
 	)
-	return math.clamp(proportional, 0.56, 1)
+	-- Do not force a large minimum. Studio's device emulator and some phones
+	-- can expose a much smaller effective viewport than 1280x720.
+	return math.clamp(proportional, 0.22, 1)
 end
 
 local function isCompact()
@@ -258,17 +260,24 @@ local function layoutKnownInterfaces()
 	local avatarScale
 
 	if landscapePhone then
-		buttonScale = 0.82
-		currencyScale = 0.62
-		smallHudScale = 0.80
-		panelScale = 0.74
-		avatarScale = 0.74
+		-- Keep the same composition as the 980x540 Studio preview, but scale
+		-- according to the ACTUAL viewport. Very small emulated viewports need
+		-- to go well below 0.6 or the top-right HUD gets clipped.
+		local widthRatio = viewport().X / 980
+		local heightRatio = viewport().Y / 540
+		local previewRatio = math.min(widthRatio, heightRatio)
+
+		buttonScale = math.clamp(previewRatio, 0.38, 0.82)
+		currencyScale = math.clamp(previewRatio * 0.92, 0.28, 0.72)
+		smallHudScale = math.clamp(previewRatio, 0.38, 0.82)
+		panelScale = math.clamp(previewRatio, 0.42, 0.78)
+		avatarScale = math.clamp(previewRatio, 0.42, 0.80)
 	elseif compact then
-		buttonScale = math.clamp(proportional, 0.72, 0.84)
-		currencyScale = math.clamp(proportional, 0.58, 0.70)
-		smallHudScale = math.clamp(proportional, 0.68, 0.84)
-		panelScale = math.clamp(proportional, 0.66, 0.80)
-		avatarScale = math.clamp(proportional, 0.66, 0.82)
+		buttonScale = math.clamp(proportional, 0.38, 0.84)
+		currencyScale = math.clamp(proportional * 0.92, 0.28, 0.72)
+		smallHudScale = math.clamp(proportional, 0.38, 0.84)
+		panelScale = math.clamp(proportional, 0.42, 0.80)
+		avatarScale = math.clamp(proportional, 0.42, 0.82)
 	else
 		buttonScale = 1
 		currencyScale = 1
@@ -333,7 +342,7 @@ local function layoutKnownInterfaces()
 			money.AnchorPoint = Vector2.new(1, 0)
 			money.Size = UDim2.fromOffset(190, 170)
 			if landscapePhone then
-				money.Position = UDim2.new(1, -6, 0, -54)
+				money.Position = UDim2.new(1, -8, 0, -34)
 			else
 				money.Position = UDim2.new(1, -4, 0, -62)
 			end
@@ -345,7 +354,7 @@ local function layoutKnownInterfaces()
 			diamonds.AnchorPoint = Vector2.new(1, 0)
 			diamonds.Size = UDim2.fromOffset(145, 130)
 			if landscapePhone then
-				diamonds.Position = UDim2.new(1, -22, 0, 2)
+				diamonds.Position = UDim2.new(1, -16, 0, 18)
 			else
 				diamonds.Position = UDim2.new(1, -20, 0, -3)
 			end

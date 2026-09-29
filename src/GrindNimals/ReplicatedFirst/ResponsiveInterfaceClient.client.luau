@@ -40,6 +40,12 @@ local function isCompact()
 	return view.X < 1000 or view.Y < 600
 end
 
+local function isLandscapePhone()
+	local view = viewport()
+	local aspect = view.X / math.max(1, view.Y)
+	return view.X > view.Y and view.Y <= 650 and aspect >= 1.45
+end
+
 local function ensureNamedScale(object, name)
 	local scale = object:FindFirstChild(name)
 	if scale and not scale:IsA("UIScale") then
@@ -239,14 +245,37 @@ end
 
 local function layoutKnownInterfaces()
 	local compact = isCompact()
+	local landscapePhone = isLandscapePhone()
 	local proportional = viewportScale()
 
-	-- A little larger than pure proportional scaling so touch targets stay usable.
-	local buttonScale = compact and math.clamp(proportional, 0.72, 0.82) or 1
-	local currencyScale = compact and math.clamp(proportional, 0.58, 0.68) or 1
-	local smallHudScale = compact and math.clamp(proportional, 0.68, 0.82) or 1
-	local panelScale = compact and math.clamp(proportional, 0.66, 0.78) or 1
-	local avatarScale = compact and math.clamp(proportional, 0.66, 0.80) or 1
+	-- Mobile landscape is tuned to match the Studio preview reference:
+	-- left backpack, three right-side buttons, currency at top-right,
+	-- while leaving the quick-slot bar untouched at the bottom.
+	local buttonScale
+	local currencyScale
+	local smallHudScale
+	local panelScale
+	local avatarScale
+
+	if landscapePhone then
+		buttonScale = 0.82
+		currencyScale = 0.62
+		smallHudScale = 0.80
+		panelScale = 0.74
+		avatarScale = 0.74
+	elseif compact then
+		buttonScale = math.clamp(proportional, 0.72, 0.84)
+		currencyScale = math.clamp(proportional, 0.58, 0.70)
+		smallHudScale = math.clamp(proportional, 0.68, 0.84)
+		panelScale = math.clamp(proportional, 0.66, 0.80)
+		avatarScale = math.clamp(proportional, 0.66, 0.82)
+	else
+		buttonScale = 1
+		currencyScale = 1
+		smallHudScale = 1
+		panelScale = 1
+		avatarScale = 1
+	end
 
 	local hud = playerGui:FindFirstChild("HUD")
 	if hud then
@@ -256,9 +285,13 @@ local function layoutKnownInterfaces()
 
 		local tradeButton = actions and actions:FindFirstChild("ButtonTrato")
 		if tradeButton and tradeButton:IsA("GuiObject") then
-			tradeButton.AnchorPoint = Vector2.new(1, 0)
+			tradeButton.AnchorPoint = Vector2.new(1, 0.5)
 			tradeButton.Size = UDim2.fromOffset(64, 64)
-			tradeButton.Position = UDim2.new(1, -12, 0, 150)
+			if landscapePhone then
+				tradeButton.Position = UDim2.new(1, -18, 0.37, 0)
+			else
+				tradeButton.Position = UDim2.new(1, -12, 0, 182)
+			end
 			applyDeviceScale(tradeButton, buttonScale)
 		end
 
@@ -266,15 +299,23 @@ local function layoutKnownInterfaces()
 		if backpackButton and backpackButton:IsA("GuiObject") then
 			backpackButton.AnchorPoint = Vector2.new(0, 0.5)
 			backpackButton.Size = UDim2.fromOffset(72, 72)
-			backpackButton.Position = UDim2.new(0, 12, 0.42, 0)
+			if landscapePhone then
+				backpackButton.Position = UDim2.new(0, 24, 0.48, 0)
+			else
+				backpackButton.Position = UDim2.new(0, 12, 0.42, 0)
+			end
 			applyDeviceScale(backpackButton, buttonScale)
 		end
 
 		local settingsButton = settings and settings:FindFirstChild("ButtonConfig")
 		if settingsButton and settingsButton:IsA("GuiObject") then
-			settingsButton.AnchorPoint = Vector2.new(1, 0)
+			settingsButton.AnchorPoint = Vector2.new(1, 0.5)
 			settingsButton.Size = UDim2.fromOffset(64, 64)
-			settingsButton.Position = UDim2.new(1, -12, 0, 286)
+			if landscapePhone then
+				settingsButton.Position = UDim2.new(1, -18, 0.63, 0)
+			else
+				settingsButton.Position = UDim2.new(1, -12, 0, 318)
+			end
 			applyDeviceScale(settingsButton, buttonScale)
 		end
 
@@ -287,13 +328,15 @@ local function layoutKnownInterfaces()
 			applyDeviceScale(settingsFrame, fitted)
 		end
 
-		-- Currency stays top-right, but its complete artwork shrinks uniformly on
-		-- phones/tablets so the numbers no longer occupy the gameplay area.
 		local money = hud:FindFirstChild("Dinero")
 		if money and money:IsA("GuiObject") then
 			money.AnchorPoint = Vector2.new(1, 0)
 			money.Size = UDim2.fromOffset(190, 170)
-			money.Position = UDim2.new(1, -4, 0, -62)
+			if landscapePhone then
+				money.Position = UDim2.new(1, -6, 0, -54)
+			else
+				money.Position = UDim2.new(1, -4, 0, -62)
+			end
 			applyDeviceScale(money, currencyScale)
 		end
 
@@ -301,7 +344,11 @@ local function layoutKnownInterfaces()
 		if diamonds and diamonds:IsA("GuiObject") then
 			diamonds.AnchorPoint = Vector2.new(1, 0)
 			diamonds.Size = UDim2.fromOffset(145, 130)
-			diamonds.Position = UDim2.new(1, -20, 0, -3)
+			if landscapePhone then
+				diamonds.Position = UDim2.new(1, -22, 0, 2)
+			else
+				diamonds.Position = UDim2.new(1, -20, 0, -3)
+			end
 			applyDeviceScale(diamonds, currencyScale)
 		end
 	end
@@ -310,14 +357,17 @@ local function layoutKnownInterfaces()
 	if avatar then
 		local toggle = avatar:FindFirstChild("Toggle")
 		if toggle and toggle:IsA("GuiObject") then
-			toggle.AnchorPoint = Vector2.new(1, 0)
+			toggle.AnchorPoint = Vector2.new(1, 0.5)
 			toggle.Size = UDim2.fromOffset(64, 64)
-			toggle.Position = UDim2.new(1, -12, 0, 218)
+			if landscapePhone then
+				toggle.Position = UDim2.new(1, -18, 0.50, 0)
+			else
+				toggle.Position = UDim2.new(1, -12, 0, 250)
+			end
 			applyDeviceScale(toggle, buttonScale)
 		end
 
-		-- Scale the editor as ONE piece. Catalog, tabs, cards and viewer keep the
-		-- exact same composition instead of changing rows/columns externally.
+		-- Keep the avatar editor composition intact; only scale the entire panel.
 		local main = avatar:FindFirstChild("Main")
 		if main and main:IsA("GuiObject") then
 			local fitted = math.min(avatarScale, fitScaleForCurrentAnchor(main, avatarScale))
@@ -343,7 +393,6 @@ local function layoutKnownInterfaces()
 		applyDeviceScale(helpButton, smallHudScale)
 	end
 end
-
 local function visit(object, screen)
 	if object:IsA("ScreenGui") then
 		if excludedScreens[object.Name] then

@@ -1,7 +1,6 @@
 -- GrindNimals responsive UI adapter
--- Keeps the authored visual layout intact. It only scales oversized panels down
--- when the current viewport cannot contain them, and preserves the established
--- HUD locations instead of redesigning/reflowing them per-device.
+-- Goal: preserve the authored layout/visual zones on every device.
+-- We scale interfaces uniformly when needed; we do not redesign/reflow them.
 
 local Players = game:GetService("Players")
 
@@ -20,21 +19,36 @@ local excludedScreens = {
 local EDGE_MARGIN = 10
 local LARGE_PANEL_MIN_WIDTH = 280
 local LARGE_PANEL_MIN_HEIGHT = 250
+local REFERENCE_VIEWPORT = Vector2.new(1280, 720)
 
 local function viewport()
 	local camera = workspace.CurrentCamera
-	return camera and camera.ViewportSize or Vector2.new(1280, 720)
+	return camera and camera.ViewportSize or REFERENCE_VIEWPORT
 end
 
-local function getOrCreateScale(object)
-	local scale = object:FindFirstChild("ResponsiveScale")
-		or object:FindFirstChild("ContentScale")
-		or object:FindFirstChild("ViewportFitScale")
-		or object:FindFirstChildOfClass("UIScale")
+local function viewportScale()
+	local view = viewport()
+	local proportional = math.min(
+		view.X / REFERENCE_VIEWPORT.X,
+		view.Y / REFERENCE_VIEWPORT.Y
+	)
+	return math.clamp(proportional, 0.56, 1)
+end
+
+local function isCompact()
+	local view = viewport()
+	return view.X < 1000 or view.Y < 600
+end
+
+local function ensureNamedScale(object, name)
+	local scale = object:FindFirstChild(name)
+	if scale and not scale:IsA("UIScale") then
+		scale = nil
+	end
 
 	if not scale then
 		scale = Instance.new("UIScale")
-		scale.Name = "ViewportFitScale"
+		scale.Name = name
 		scale.Scale = 1
 		scale.Parent = object
 	end
@@ -42,104 +56,114 @@ local function getOrCreateScale(object)
 	return scale
 end
 
-local function fitTarget(object, state)
-	if not object.Parent or not object:IsDescendantOf(playerGui) then
+local function applyDeviceScale(object, value)
+	if not object or not object:IsA("GuiObject") then
 		return
 	end
 
-	local parent = object.Parent
-	if not parent:IsA("GuiBase2d") then
-		return
+	object:SetAttribute("ResponsiveManagedByAdapter", true)
+	local scale = ensureNamedScale(object, "ResponsiveDeviceScale")
+	scale.Scale = value
+end
+
+local function fitScaleForCurrentAnchor(object, maximum)
+	if not object or not object.Parent or not object.Parent:IsA("GuiBase2d") then
+		return maximum or 1
 	end
 
-	local parentSize = parent.AbsoluteSize
+	local parentSize = object.Parent.AbsoluteSize
 	if parentSize.X < 1 or parentSize.Y < 1 then
-		return
+		return maximum or 1
 	end
 
 	local size = object.Size
-	local unscaledWidth = parentSize.X * size.X.Scale + size.X.Offset
-	local unscaledHeight = parentSize.Y * size.Y.Scale + size.Y.Offset
-	if unscaledWidth <= 0 or unscaledHeight <= 0 then
-		return
-	end
-
-	local scaleObject = state.scale
-	if not scaleObject.Parent then
-		return
-	end
-
-	-- If another UI script intentionally changes an existing UIScale, respect
-	-- that value as the new authored/requested scale.
-	if math.abs(scaleObject.Scale - state.applied) > 0.0001 then
-		state.requested = scaleObject.Scale
+	local width = parentSize.X * size.X.Scale + size.X.Offset
+	local height = parentSize.Y * size.Y.Scale + size.Y.Offset
+	if width <= 0 or height <= 0 then
+		return maximum or 1
 	end
 
 	local anchor = object.AnchorPoint
 	local position = object.Position
-	local anchorX = parentSize.X * position.X.Scale + position.X.Offset
-	local anchorY = parentSize.Y * position.Y.Scale + position.Y.Offset
+	local x = parentSize.X * position.X.Scale + position.X.Offset
+	local y = parentSize.Y * position.Y.Scale + position.Y.Offset
 
 	local availableWidth = math.max(1, parentSize.X - EDGE_MARGIN * 2)
 	local availableHeight = math.max(1, parentSize.Y - EDGE_MARGIN * 2)
 
-	-- Work out how much room exists around the object's CURRENT authored anchor.
-	-- This deliberately does not change Position or AnchorPoint.
-	if anchorX >= 0 and anchorX <= parentSize.X then
+	if x >= 0 and x <= parentSize.X then
 		if anchor.X > 0 then
 			availableWidth = math.min(
 				availableWidth,
-				math.max(1, anchorX - EDGE_MARGIN) / anchor.X
+				math.max(1, x - EDGE_MARGIN) / anchor.X
 			)
 		end
 		if anchor.X < 1 then
 			availableWidth = math.min(
 				availableWidth,
-				math.max(1, parentSize.X - anchorX - EDGE_MARGIN) / (1 - anchor.X)
+				math.max(1, parentSize.X - x - EDGE_MARGIN) / (1 - anchor.X)
 			)
 		end
 	end
 
-	if anchorY >= 0 and anchorY <= parentSize.Y then
+	if y >= 0 and y <= parentSize.Y then
 		if anchor.Y > 0 then
 			availableHeight = math.min(
 				availableHeight,
-				math.max(1, anchorY - EDGE_MARGIN) / anchor.Y
+				math.max(1, y - EDGE_MARGIN) / anchor.Y
 			)
 		end
 		if anchor.Y < 1 then
 			availableHeight = math.min(
 				availableHeight,
-				math.max(1, parentSize.Y - anchorY - EDGE_MARGIN) / (1 - anchor.Y)
+				math.max(1, parentSize.Y - y - EDGE_MARGIN) / (1 - anchor.Y)
 			)
 		end
 	end
 
-	-- Never enlarge an interface beyond its authored scale. On smaller screens,
-	-- shrink uniformly so text, strokes, icons and spacing keep their proportions.
 	local fitted = math.min(
-		state.requested,
-		availableWidth / unscaledWidth,
-		availableHeight / unscaledHeight
+		maximum or 1,
+		availableWidth / width,
+		availableHeight / height
 	)
 
-	fitted = math.clamp(fitted, 0.35, state.requested)
+	return math.clamp(fitted, 0.35, maximum or 1)
+end
+
+local function fitTarget(object, state)
+	if not object.Parent or not object:IsDescendantOf(playerGui) then
+		return
+	end
+
+	if object:GetAttribute("ResponsiveManagedByAdapter") == true then
+		return
+	end
+
+	local fitted = fitScaleForCurrentAnchor(object, state.requested)
 	state.applied = fitted
 
-	if math.abs(scaleObject.Scale - fitted) > 0.0001 then
-		scaleObject.Scale = fitted
+	if math.abs(state.scale.Scale - fitted) > 0.0001 then
+		state.scale.Scale = fitted
 	end
 end
 
 local function fit(object)
+	if not object or not object:IsA("GuiObject") then
+		return
+	end
+	if object:GetAttribute("ResponsiveManagedByAdapter") == true then
+		return
+	end
 	if targets[object] then
 		return
 	end
 
-	local scale = getOrCreateScale(object)
+	-- IMPORTANT: use only our own scale. Never grab a random UIScale belonging
+	-- to hover/click animations or another UI system.
+	local scale = ensureNamedScale(object, "ViewportFitScale")
 	local state = {
 		scale = scale,
-		requested = scale.Scale,
+		requested = 1,
 		applied = scale.Scale,
 		connections = {},
 	}
@@ -153,8 +177,6 @@ local function fit(object)
 	for _, property in { "Size", "Position", "AnchorPoint", "Visible" } do
 		table.insert(state.connections, object:GetPropertyChangedSignal(property):Connect(update))
 	end
-
-	table.insert(state.connections, scale:GetPropertyChangedSignal("Scale"):Connect(update))
 
 	if object.Parent:IsA("GuiBase2d") then
 		table.insert(
@@ -175,6 +197,9 @@ end
 
 local function shouldFit(object)
 	if not object:IsA("GuiObject") then
+		return false
+	end
+	if object:GetAttribute("ResponsiveManagedByAdapter") == true then
 		return false
 	end
 
@@ -212,13 +237,16 @@ local function shouldFit(object)
 	return fixedLargePanel or oversizedNow
 end
 
-local function keepEstablishedHudLayout()
-	-- These are the existing GrindNimals desktop locations that were already in
-	-- the project before this revision. They stay identical across device classes.
-	-- Only the physical button size becomes slightly smaller on compact screens.
-	local view = viewport()
-	local compact = view.X < 1000 or view.Y < 600
-	local buttonSize = compact and 48 or 64
+local function layoutKnownInterfaces()
+	local compact = isCompact()
+	local proportional = viewportScale()
+
+	-- A little larger than pure proportional scaling so touch targets stay usable.
+	local buttonScale = compact and math.clamp(proportional, 0.72, 0.82) or 1
+	local currencyScale = compact and math.clamp(proportional, 0.58, 0.68) or 1
+	local smallHudScale = compact and math.clamp(proportional, 0.68, 0.82) or 1
+	local panelScale = compact and math.clamp(proportional, 0.66, 0.78) or 1
+	local avatarScale = compact and math.clamp(proportional, 0.66, 0.80) or 1
 
 	local hud = playerGui:FindFirstChild("HUD")
 	if hud then
@@ -229,22 +257,25 @@ local function keepEstablishedHudLayout()
 		local tradeButton = actions and actions:FindFirstChild("ButtonTrato")
 		if tradeButton and tradeButton:IsA("GuiObject") then
 			tradeButton.AnchorPoint = Vector2.new(1, 0)
-			tradeButton.Size = UDim2.fromOffset(buttonSize, buttonSize)
+			tradeButton.Size = UDim2.fromOffset(64, 64)
 			tradeButton.Position = UDim2.new(1, -12, 0, 150)
+			applyDeviceScale(tradeButton, buttonScale)
 		end
 
 		local backpackButton = backpack and backpack:FindFirstChild("IconoBackpack")
 		if backpackButton and backpackButton:IsA("GuiObject") then
 			backpackButton.AnchorPoint = Vector2.new(0, 0.5)
-			backpackButton.Size = UDim2.fromOffset(buttonSize + 8, buttonSize + 8)
+			backpackButton.Size = UDim2.fromOffset(72, 72)
 			backpackButton.Position = UDim2.new(0, 12, 0.42, 0)
+			applyDeviceScale(backpackButton, buttonScale)
 		end
 
 		local settingsButton = settings and settings:FindFirstChild("ButtonConfig")
 		if settingsButton and settingsButton:IsA("GuiObject") then
 			settingsButton.AnchorPoint = Vector2.new(1, 0)
-			settingsButton.Size = UDim2.fromOffset(buttonSize, buttonSize)
+			settingsButton.Size = UDim2.fromOffset(64, 64)
 			settingsButton.Position = UDim2.new(1, -12, 0, 286)
+			applyDeviceScale(settingsButton, buttonScale)
 		end
 
 		local settingsFrame = settings and settings:FindFirstChild("Frame")
@@ -252,17 +283,18 @@ local function keepEstablishedHudLayout()
 			settingsFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 			settingsFrame.Size = UDim2.fromOffset(270, 170)
 			settingsFrame.Position = UDim2.fromScale(0.5, 0.5)
-			fit(settingsFrame)
+			local fitted = math.min(panelScale, fitScaleForCurrentAnchor(settingsFrame, panelScale))
+			applyDeviceScale(settingsFrame, fitted)
 		end
 
-		-- Keep the currency artwork in the same top-right locations. Those images
-		-- contain transparent padding, so changing their position would visibly
-		-- shift the artwork even if the ImageLabel bounds looked similar.
+		-- Currency stays top-right, but its complete artwork shrinks uniformly on
+		-- phones/tablets so the numbers no longer occupy the gameplay area.
 		local money = hud:FindFirstChild("Dinero")
 		if money and money:IsA("GuiObject") then
 			money.AnchorPoint = Vector2.new(1, 0)
 			money.Size = UDim2.fromOffset(190, 170)
 			money.Position = UDim2.new(1, -4, 0, -62)
+			applyDeviceScale(money, currencyScale)
 		end
 
 		local diamonds = hud:FindFirstChild("Diamantes")
@@ -270,6 +302,7 @@ local function keepEstablishedHudLayout()
 			diamonds.AnchorPoint = Vector2.new(1, 0)
 			diamonds.Size = UDim2.fromOffset(145, 130)
 			diamonds.Position = UDim2.new(1, -20, 0, -3)
+			applyDeviceScale(diamonds, currencyScale)
 		end
 	end
 
@@ -278,16 +311,17 @@ local function keepEstablishedHudLayout()
 		local toggle = avatar:FindFirstChild("Toggle")
 		if toggle and toggle:IsA("GuiObject") then
 			toggle.AnchorPoint = Vector2.new(1, 0)
-			toggle.Size = UDim2.fromOffset(buttonSize, buttonSize)
+			toggle.Size = UDim2.fromOffset(64, 64)
 			toggle.Position = UDim2.new(1, -12, 0, 218)
+			applyDeviceScale(toggle, buttonScale)
 		end
 
-		-- Do NOT reorganize Catalog/Viewer on portrait devices. The complete
-		-- AvatarEditor keeps its authored layout and is fitted as one panel if
-		-- necessary, preserving the original design.
+		-- Scale the editor as ONE piece. Catalog, tabs, cards and viewer keep the
+		-- exact same composition instead of changing rows/columns externally.
 		local main = avatar:FindFirstChild("Main")
 		if main and main:IsA("GuiObject") then
-			fit(main)
+			local fitted = math.min(avatarScale, fitScaleForCurrentAnchor(main, avatarScale))
+			applyDeviceScale(main, fitted)
 		end
 	end
 
@@ -297,6 +331,7 @@ local function keepEstablishedHudLayout()
 		clockFrame.AnchorPoint = Vector2.zero
 		clockFrame.Size = UDim2.fromOffset(110, 42)
 		clockFrame.Position = UDim2.fromOffset(12, 4)
+		applyDeviceScale(clockFrame, smallHudScale)
 	end
 
 	local tutorial = playerGui:FindFirstChild("GrindNimalsTutorialGui")
@@ -305,6 +340,7 @@ local function keepEstablishedHudLayout()
 		helpButton.AnchorPoint = Vector2.zero
 		helpButton.Size = UDim2.fromOffset(48, 48)
 		helpButton.Position = UDim2.fromOffset(16, 50)
+		applyDeviceScale(helpButton, smallHudScale)
 	end
 end
 
@@ -314,8 +350,8 @@ local function visit(object, screen)
 			return
 		end
 
-		-- We intentionally keep each ScreenGui's authored inset settings. Changing
-		-- ScreenInsets/IgnoreGuiInset here would move the entire interface.
+		-- Preserve the ScreenGui's authored inset behavior so the entire layout
+		-- does not jump to a different coordinate system.
 		screen = object
 	elseif object:IsA("GuiObject") and screen then
 		if shouldFit(object) then
@@ -333,7 +369,7 @@ end
 local function refresh()
 	queued = false
 
-	keepEstablishedHudLayout()
+	layoutKnownInterfaces()
 	visit(playerGui, nil)
 
 	for object, state in targets do

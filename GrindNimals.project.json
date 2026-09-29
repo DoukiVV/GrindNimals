@@ -1,0 +1,30 @@
+{
+  "name": "GrindNimals - GrindNimals",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/GrindNimals/ReplicatedStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerScriptService": {
+      "$path": "src/GrindNimals/ServerScriptService",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerStorage": {
+      "$path": "src/GrindNimals/ServerStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterGui": {
+      "$path": "src/GrindNimals/StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterPlayer": {
+      "$path": "src/GrindNimals/StarterPlayer",
+      "$ignoreUnknownInstances": true
+    },
+    "Workspace": {
+      "$path": "src/GrindNimals/Workspace",
+      "$ignoreUnknownInstances": true
+    }
+  }
+}

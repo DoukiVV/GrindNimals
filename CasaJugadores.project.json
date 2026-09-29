@@ -1,0 +1,30 @@
+{
+  "name": "GrindNimals - CasaJugadores",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/CasaJugadores/ReplicatedStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerScriptService": {
+      "$path": "src/CasaJugadores/ServerScriptService",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerStorage": {
+      "$path": "src/CasaJugadores/ServerStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterGui": {
+      "$path": "src/CasaJugadores/StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterPlayer": {
+      "$path": "src/CasaJugadores/StarterPlayer",
+      "$ignoreUnknownInstances": true
+    },
+    "Workspace": {
+      "$path": "src/CasaJugadores/Workspace",
+      "$ignoreUnknownInstances": true
+    }
+  }
+}

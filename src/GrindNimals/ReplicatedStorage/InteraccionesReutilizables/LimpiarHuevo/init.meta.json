@@ -1,0 +1,9 @@
+{
+  "attributes": {
+    "ActionText": "Limpiar",
+    "KeyboardKeyCode": "E",
+    "MaxActivationDistance": 12.0,
+    "ObjectText": "Huevo"
+  },
+  "className": "Configuration"
+}

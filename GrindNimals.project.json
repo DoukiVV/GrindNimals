@@ -2,65 +2,192 @@
   "name": "GrindNimals - GrindNimals",
   "tree": {
     "$className": "DataModel",
-    "Workspace": {
-      "$path": "src/GrindNimals/Workspace",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedFirst": {
-      "$path": "src/GrindNimals/ReplicatedFirst",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedStorage": {
-      "$path": "src/GrindNimals/ReplicatedStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerScriptService": {
-      "$path": "src/GrindNimals/ServerScriptService",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerStorage": {
-      "$path": "src/GrindNimals/ServerStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterGui": {
-      "$path": "src/GrindNimals/StarterGui",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPack": {
-      "$path": "src/GrindNimals/StarterPack",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPlayer": {
-      "$path": "src/GrindNimals/StarterPlayer",
-      "$ignoreUnknownInstances": true
+    "Chat": {
+      "$properties": {
+        "BubbleChatEnabled": true,
+        "IsAutoMigrated": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/Chat"
     },
     "Lighting": {
-      "$path": "src/GrindNimals/Lighting",
-      "$ignoreUnknownInstances": true
-    },
-    "SoundService": {
-      "$path": "src/GrindNimals/SoundService",
-      "$ignoreUnknownInstances": true
-    },
-    "Teams": {
-      "$path": "src/GrindNimals/Teams",
-      "$ignoreUnknownInstances": true
-    },
-    "TextChatService": {
-      "$path": "src/GrindNimals/TextChatService",
-      "$ignoreUnknownInstances": true
-    },
-    "Chat": {
-      "$path": "src/GrindNimals/Chat",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Ambient": [
+          0.27450981736183167,
+          0.27450981736183167,
+          0.27450981736183167
+        ],
+        "Brightness": 3.0,
+        "EnvironmentDiffuseScale": 0.6499999761581421,
+        "EnvironmentSpecularScale": 0.550000011920929,
+        "FogColor": [
+          0.7529412508010864,
+          0.7529412508010864,
+          0.7529412508010864
+        ],
+        "GeographicLatitude": 0.0,
+        "GlobalShadows": true,
+        "LightingStyle": "Realistic",
+        "OutdoorAmbient": [
+          0.27450981736183167,
+          0.27450981736183167,
+          0.27450981736183167
+        ],
+        "Outlines": false,
+        "PrioritizeLightingQuality": true,
+        "ShadowSoftness": 0.20000000298023224,
+        "Technology": "ShadowMap",
+        "TimeOfDay": "08:00:00"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/Lighting"
     },
     "LocalizationService": {
-      "$path": "src/GrindNimals/LocalizationService",
-      "$ignoreUnknownInstances": true
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/LocalizationService"
     },
     "MaterialService": {
-      "$path": "src/GrindNimals/MaterialService",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Use2022MaterialsXml": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/MaterialService"
+    },
+    "ReplicatedFirst": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/ServerScriptService"
+    },
+    "ServerStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/ServerStorage"
+    },
+    "SoundService": {
+      "$properties": {
+        "DefaultListenerLocation": "Camera",
+        "RespectFilteringEnabled": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/SoundService"
+    },
+    "StarterGui": {
+      "$properties": {
+        "ScreenOrientation": "Sensor"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/StarterGui"
+    },
+    "StarterPack": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/StarterPack"
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 128.0,
+        "CharacterUseJumpPower": false
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/StarterPlayer"
+    },
+    "Teams": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/Teams"
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService",
+        "IsLegacyChatDisabled": true,
+        "PlatformIntegratedChat": {
+          "Enum": 0
+        }
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/TextChatService"
+    },
+    "Workspace": {
+      "$properties": {
+        "AutoSimulate": {
+          "Bool": true
+        },
+        "ExpandedTerrain": {
+          "Enum": 0
+        },
+        "GravityDirection": {
+          "Vector3": [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        "MapTVRemoteToGamepadKeycodes": {
+          "Enum": 0
+        },
+        "PredictiveStreamingMode": {
+          "Enum": 0
+        },
+        "SignalBehavior": "Deferred",
+        "SimulationRate": {
+          "Float32": 1.0
+        },
+        "StreamOutBehavior": "Opportunistic",
+        "StreamingAdaptiveRadius": {
+          "Bool": false
+        },
+        "StreamingEnabled": true,
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea",
+        "UseInputSink": {
+          "Enum": 0
+        },
+        "Wind": {
+          "Float32": 0.0
+        },
+        "WindDirection": {
+          "Vector3": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "WorldPivotData": {
+          "OptionalCFrame": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      "$attributes": {
+        "Rojo_Id": "65528697bb12f703093ad73300000002",
+        "Rojo_Target_CurrentCamera": "65528697bb12f703093ad733000003a6"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/GrindNimals/Workspace"
     }
   }
 }

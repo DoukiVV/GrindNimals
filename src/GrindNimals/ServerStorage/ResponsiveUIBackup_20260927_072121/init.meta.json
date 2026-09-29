@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "IconTint": {
+      "Color3": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "attributes": {
+    "Complete": true,
+    "Purpose": "UI before mobile responsiveness changes"
+  }
+}

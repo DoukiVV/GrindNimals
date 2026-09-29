@@ -7,7 +7,7 @@ Proyecto Roblox multi-Place administrado con Rojo.
 - **GrindNimals** — mundo principal / lobby.
 - **CasaJugadores** — exterior de las casas de jugadores.
 - **AdentroCasaJugadores** — interiores de las casas.
-- **Reserva natural** — mundo de reserva natural.
+- **Reserva natural** — el bosque.
 - **Pruebas** — excluido del repositorio principal por ahora.
 
 Cada Place tiene su propio archivo `.project.json` y su propia carpeta dentro de `src/`.
@@ -19,7 +19,7 @@ Cada Place tiene su propio archivo `.project.json` y su propia carpeta dentro de
 - `AdentroCasaJugadores.project.json`
 - `ReservaNatural.project.json`
 
-> Nota: el archivo y la carpeta usan `ReservaNatural` sin espacio para facilitar comandos y rutas, pero corresponde al Place visible como **Reserva natural** en Roblox Studio.
+> Nota: el archivo y la carpeta usan `ReservaNatural` sin espacio para facilitar comandos y rutas, pero corresponde al Place visible como **Reserva natural** en Roblox Studio, que es el bosque.
 
 ## Seguridad al conectar Studio
 

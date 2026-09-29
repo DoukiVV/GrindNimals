@@ -2,65 +2,188 @@
   "name": "GrindNimals - CasaJugadores",
   "tree": {
     "$className": "DataModel",
-    "Workspace": {
-      "$path": "src/CasaJugadores/Workspace",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedFirst": {
-      "$path": "src/CasaJugadores/ReplicatedFirst",
-      "$ignoreUnknownInstances": true
-    },
-    "ReplicatedStorage": {
-      "$path": "src/CasaJugadores/ReplicatedStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerScriptService": {
-      "$path": "src/CasaJugadores/ServerScriptService",
-      "$ignoreUnknownInstances": true
-    },
-    "ServerStorage": {
-      "$path": "src/CasaJugadores/ServerStorage",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterGui": {
-      "$path": "src/CasaJugadores/StarterGui",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPack": {
-      "$path": "src/CasaJugadores/StarterPack",
-      "$ignoreUnknownInstances": true
-    },
-    "StarterPlayer": {
-      "$path": "src/CasaJugadores/StarterPlayer",
-      "$ignoreUnknownInstances": true
+    "Chat": {
+      "$properties": {
+        "BubbleChatEnabled": true,
+        "IsAutoMigrated": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/Chat"
     },
     "Lighting": {
-      "$path": "src/CasaJugadores/Lighting",
-      "$ignoreUnknownInstances": true
-    },
-    "SoundService": {
-      "$path": "src/CasaJugadores/SoundService",
-      "$ignoreUnknownInstances": true
-    },
-    "Teams": {
-      "$path": "src/CasaJugadores/Teams",
-      "$ignoreUnknownInstances": true
-    },
-    "TextChatService": {
-      "$path": "src/CasaJugadores/TextChatService",
-      "$ignoreUnknownInstances": true
-    },
-    "Chat": {
-      "$path": "src/CasaJugadores/Chat",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Ambient": [
+          0.27450981736183167,
+          0.27450981736183167,
+          0.27450981736183167
+        ],
+        "Brightness": 3.0,
+        "EnvironmentDiffuseScale": 1.0,
+        "EnvironmentSpecularScale": 1.0,
+        "FogColor": [
+          0.7529412508010864,
+          0.7529412508010864,
+          0.7529412508010864
+        ],
+        "GeographicLatitude": 0.0,
+        "GlobalShadows": true,
+        "OutdoorAmbient": [
+          0.27450981736183167,
+          0.27450981736183167,
+          0.27450981736183167
+        ],
+        "Outlines": false,
+        "PrioritizeLightingQuality": true,
+        "ShadowSoftness": 0.20000000298023224,
+        "Technology": "ShadowMap",
+        "TimeOfDay": "14:30:00"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/Lighting"
     },
     "LocalizationService": {
-      "$path": "src/CasaJugadores/LocalizationService",
-      "$ignoreUnknownInstances": true
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/LocalizationService"
     },
     "MaterialService": {
-      "$path": "src/CasaJugadores/MaterialService",
-      "$ignoreUnknownInstances": true
+      "$properties": {
+        "Use2022MaterialsXml": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/MaterialService"
+    },
+    "ReplicatedFirst": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/ServerScriptService"
+    },
+    "ServerStorage": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/ServerStorage"
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/SoundService"
+    },
+    "StarterGui": {
+      "$properties": {
+        "ScreenOrientation": "Sensor"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/StarterGui"
+    },
+    "StarterPack": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/StarterPack"
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 128.0,
+        "CharacterUseJumpPower": false
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/StarterPlayer"
+    },
+    "Teams": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/Teams"
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService",
+        "PlatformIntegratedChat": {
+          "Enum": 0
+        }
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/TextChatService"
+    },
+    "Workspace": {
+      "$properties": {
+        "AutoSimulate": {
+          "Bool": true
+        },
+        "ExpandedTerrain": {
+          "Enum": 0
+        },
+        "GravityDirection": {
+          "Vector3": [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        "MapTVRemoteToGamepadKeycodes": {
+          "Enum": 0
+        },
+        "PredictiveStreamingMode": {
+          "Enum": 0
+        },
+        "SignalBehavior": "Deferred",
+        "SimulationRate": {
+          "Float32": 1.0
+        },
+        "StreamOutBehavior": "Opportunistic",
+        "StreamingAdaptiveRadius": {
+          "Bool": false
+        },
+        "StreamingEnabled": true,
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea",
+        "UseInputSink": {
+          "Enum": 0
+        },
+        "Wind": {
+          "Float32": 0.0
+        },
+        "WindDirection": {
+          "Vector3": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "WorldPivotData": {
+          "OptionalCFrame": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              [
+                1.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      "$attributes": {
+        "Rojo_Target_CurrentCamera": "6d6ae1d713c82fae0620aa1300000375"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "src/CasaJugadores/Workspace"
     }
   }
 }

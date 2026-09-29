@@ -1,0 +1,15 @@
+{
+  "className": "ChatWindowConfiguration",
+  "properties": {
+    "FontFace": {
+      "family": "rbxasset://fonts/families/BuilderSans.json",
+      "weight": "Medium",
+      "style": "Normal",
+      "cachedFaceId": "rbxasset://fonts/BuilderSans-Medium.otf"
+    },
+    "TextSize": 18.0,
+    "TextChannelDisplayMode": {
+      "Enum": 0
+    }
+  }
+}

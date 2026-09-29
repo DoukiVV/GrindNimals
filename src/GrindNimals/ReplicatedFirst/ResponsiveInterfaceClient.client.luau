@@ -245,6 +245,88 @@ local function shouldFit(object)
 	return fixedLargePanel or oversizedNow
 end
 
+
+local function isCurrencyText(text)
+	text = tostring(text or "")
+	if text:find("%$") then
+		return true
+	end
+
+	-- Diamonds in GrindNimals are shown as a plain number below the money.
+	-- Keep this conservative: only short numeric/comma strings qualify.
+	return text:match("^%s*[%d,%.]+%s*$") ~= nil and #text <= 14
+end
+
+local function findLocalCurrencyContainer(textObject)
+	local view = viewport()
+	local current = textObject
+	local best = textObject
+
+	while current.Parent and current.Parent:IsA("GuiObject") do
+		local parent = current.Parent
+		local size = parent.AbsoluteSize
+
+		-- Currency artwork is a compact top-right cluster. Stop before climbing
+		-- into a full-screen HUD container.
+		if size.X <= view.X * 0.46 and size.Y <= view.Y * 0.48 then
+			best = parent
+			current = parent
+		else
+			break
+		end
+	end
+
+	return best
+end
+
+local function scaleDetectedCurrency()
+	local view = viewport()
+	if view.X < 1 or view.Y < 1 then
+		return
+	end
+
+	local seen = {}
+
+	for _, object in playerGui:GetDescendants() do
+		if (object:IsA("TextLabel") or object:IsA("TextButton"))
+			and object.Visible
+			and isCurrencyText(object.Text) then
+
+			local pos = object.AbsolutePosition
+			local size = object.AbsoluteSize
+			local centerX = pos.X + size.X * 0.5
+			local centerY = pos.Y + size.Y * 0.5
+
+			if centerX >= view.X * 0.58 and centerY <= view.Y * 0.34 then
+				local container = findLocalCurrencyContainer(object)
+				if container and container:IsA("GuiObject") and not seen[container] then
+					seen[container] = true
+
+					local scaleObject = ensureNamedScale(container, "ResponsiveDeviceScale")
+					container:SetAttribute("ResponsiveManagedByAdapter", true)
+
+					local currentScale = math.max(0.001, scaleObject.Scale)
+					local baseWidth = container.AbsoluteSize.X / currentScale
+					local baseHeight = container.AbsoluteSize.Y / currentScale
+
+					-- Match the visual footprint of the reference preview:
+					-- each currency card should consume only a small part of
+					-- the top-right corner, regardless of how it was authored.
+					local targetWidth = math.max(42, view.X * 0.19)
+					local targetHeight = math.max(30, view.Y * 0.22)
+					local desired = math.min(
+						1,
+						targetWidth / math.max(1, baseWidth),
+						targetHeight / math.max(1, baseHeight)
+					)
+
+					scaleObject.Scale = math.clamp(desired, 0.18, 1)
+				end
+			end
+		end
+	end
+end
+
 local function layoutKnownInterfaces()
 	local compact = isCompact()
 	local landscapePhone = isLandscapePhone()
@@ -428,6 +510,7 @@ local function refresh()
 	queued = false
 
 	layoutKnownInterfaces()
+	scaleDetectedCurrency()
 	visit(playerGui, nil)
 
 	for object, state in targets do

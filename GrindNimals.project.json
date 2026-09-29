@@ -17,7 +17,7 @@
           0.27450981736183167,
           0.27450981736183167
         ],
-        "Brightness": 3.0,
+        "Brightness": 3,
         "EnvironmentDiffuseScale": 0.6499999761581421,
         "EnvironmentSpecularScale": 0.550000011920929,
         "FogColor": [
@@ -25,7 +25,7 @@
           0.7529412508010864,
           0.7529412508010864
         ],
-        "GeographicLatitude": 0.0,
+        "GeographicLatitude": 0,
         "GlobalShadows": true,
         "LightingStyle": "Realistic",
         "OutdoorAmbient": [
@@ -79,7 +79,7 @@
     },
     "StarterGui": {
       "$properties": {
-        "ScreenOrientation": "Sensor"
+        "ScreenOrientation": "LandscapeSensor"
       },
       "$ignoreUnknownInstances": true,
       "$path": "src/GrindNimals/StarterGui"
@@ -90,7 +90,7 @@
     },
     "StarterPlayer": {
       "$properties": {
-        "CameraMaxZoomDistance": 128.0,
+        "CameraMaxZoomDistance": 128,
         "CharacterUseJumpPower": false
       },
       "$ignoreUnknownInstances": true,
@@ -121,9 +121,9 @@
         },
         "GravityDirection": {
           "Vector3": [
-            0.0,
-            -1.0,
-            0.0
+            0,
+            -1,
+            0
           ]
         },
         "MapTVRemoteToGamepadKeycodes": {
@@ -134,7 +134,7 @@
         },
         "SignalBehavior": "Deferred",
         "SimulationRate": {
-          "Float32": 1.0
+          "Float32": 1
         },
         "StreamOutBehavior": "Opportunistic",
         "StreamingAdaptiveRadius": {
@@ -146,37 +146,37 @@
           "Enum": 0
         },
         "Wind": {
-          "Float32": 0.0
+          "Float32": 0
         },
         "WindDirection": {
           "Vector3": [
-            0.0,
-            0.0,
-            0.0
+            0,
+            0,
+            0
           ]
         },
         "WorldPivotData": {
           "OptionalCFrame": {
             "position": [
-              0.0,
-              0.0,
-              0.0
+              0,
+              0,
+              0
             ],
             "orientation": [
               [
-                1.0,
-                0.0,
-                0.0
+                1,
+                0,
+                0
               ],
               [
-                0.0,
-                1.0,
-                0.0
+                0,
+                1,
+                0
               ],
               [
-                0.0,
-                0.0,
-                1.0
+                0,
+                0,
+                1
               ]
             ]
           }

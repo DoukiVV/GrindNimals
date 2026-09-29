@@ -2,6 +2,14 @@
   "name": "GrindNimals - AdentroCasaJugadores",
   "tree": {
     "$className": "DataModel",
+    "Workspace": {
+      "$path": "src/AdentroCasaJugadores/Workspace",
+      "$ignoreUnknownInstances": true
+    },
+    "ReplicatedFirst": {
+      "$path": "src/AdentroCasaJugadores/ReplicatedFirst",
+      "$ignoreUnknownInstances": true
+    },
     "ReplicatedStorage": {
       "$path": "src/AdentroCasaJugadores/ReplicatedStorage",
       "$ignoreUnknownInstances": true
@@ -18,12 +26,40 @@
       "$path": "src/AdentroCasaJugadores/StarterGui",
       "$ignoreUnknownInstances": true
     },
+    "StarterPack": {
+      "$path": "src/AdentroCasaJugadores/StarterPack",
+      "$ignoreUnknownInstances": true
+    },
     "StarterPlayer": {
       "$path": "src/AdentroCasaJugadores/StarterPlayer",
       "$ignoreUnknownInstances": true
     },
-    "Workspace": {
-      "$path": "src/AdentroCasaJugadores/Workspace",
+    "Lighting": {
+      "$path": "src/AdentroCasaJugadores/Lighting",
+      "$ignoreUnknownInstances": true
+    },
+    "SoundService": {
+      "$path": "src/AdentroCasaJugadores/SoundService",
+      "$ignoreUnknownInstances": true
+    },
+    "Teams": {
+      "$path": "src/AdentroCasaJugadores/Teams",
+      "$ignoreUnknownInstances": true
+    },
+    "TextChatService": {
+      "$path": "src/AdentroCasaJugadores/TextChatService",
+      "$ignoreUnknownInstances": true
+    },
+    "Chat": {
+      "$path": "src/AdentroCasaJugadores/Chat",
+      "$ignoreUnknownInstances": true
+    },
+    "LocalizationService": {
+      "$path": "src/AdentroCasaJugadores/LocalizationService",
+      "$ignoreUnknownInstances": true
+    },
+    "MaterialService": {
+      "$path": "src/AdentroCasaJugadores/MaterialService",
       "$ignoreUnknownInstances": true
     }
   }

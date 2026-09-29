@@ -1,0 +1,30 @@
+{
+  "name": "GrindNimals - Reserva natural",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/ReservaNatural/ReplicatedStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerScriptService": {
+      "$path": "src/ReservaNatural/ServerScriptService",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerStorage": {
+      "$path": "src/ReservaNatural/ServerStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterGui": {
+      "$path": "src/ReservaNatural/StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterPlayer": {
+      "$path": "src/ReservaNatural/StarterPlayer",
+      "$ignoreUnknownInstances": true
+    },
+    "Workspace": {
+      "$path": "src/ReservaNatural/Workspace",
+      "$ignoreUnknownInstances": true
+    }
+  }
+}

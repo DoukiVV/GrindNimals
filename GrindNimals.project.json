@@ -2,6 +2,14 @@
   "name": "GrindNimals - GrindNimals",
   "tree": {
     "$className": "DataModel",
+    "Workspace": {
+      "$path": "src/GrindNimals/Workspace",
+      "$ignoreUnknownInstances": true
+    },
+    "ReplicatedFirst": {
+      "$path": "src/GrindNimals/ReplicatedFirst",
+      "$ignoreUnknownInstances": true
+    },
     "ReplicatedStorage": {
       "$path": "src/GrindNimals/ReplicatedStorage",
       "$ignoreUnknownInstances": true
@@ -18,12 +26,40 @@
       "$path": "src/GrindNimals/StarterGui",
       "$ignoreUnknownInstances": true
     },
+    "StarterPack": {
+      "$path": "src/GrindNimals/StarterPack",
+      "$ignoreUnknownInstances": true
+    },
     "StarterPlayer": {
       "$path": "src/GrindNimals/StarterPlayer",
       "$ignoreUnknownInstances": true
     },
-    "Workspace": {
-      "$path": "src/GrindNimals/Workspace",
+    "Lighting": {
+      "$path": "src/GrindNimals/Lighting",
+      "$ignoreUnknownInstances": true
+    },
+    "SoundService": {
+      "$path": "src/GrindNimals/SoundService",
+      "$ignoreUnknownInstances": true
+    },
+    "Teams": {
+      "$path": "src/GrindNimals/Teams",
+      "$ignoreUnknownInstances": true
+    },
+    "TextChatService": {
+      "$path": "src/GrindNimals/TextChatService",
+      "$ignoreUnknownInstances": true
+    },
+    "Chat": {
+      "$path": "src/GrindNimals/Chat",
+      "$ignoreUnknownInstances": true
+    },
+    "LocalizationService": {
+      "$path": "src/GrindNimals/LocalizationService",
+      "$ignoreUnknownInstances": true
+    },
+    "MaterialService": {
+      "$path": "src/GrindNimals/MaterialService",
       "$ignoreUnknownInstances": true
     }
   }

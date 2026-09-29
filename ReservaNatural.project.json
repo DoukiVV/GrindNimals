@@ -2,6 +2,14 @@
   "name": "GrindNimals - Reserva natural",
   "tree": {
     "$className": "DataModel",
+    "Workspace": {
+      "$path": "src/ReservaNatural/Workspace",
+      "$ignoreUnknownInstances": true
+    },
+    "ReplicatedFirst": {
+      "$path": "src/ReservaNatural/ReplicatedFirst",
+      "$ignoreUnknownInstances": true
+    },
     "ReplicatedStorage": {
       "$path": "src/ReservaNatural/ReplicatedStorage",
       "$ignoreUnknownInstances": true
@@ -18,12 +26,40 @@
       "$path": "src/ReservaNatural/StarterGui",
       "$ignoreUnknownInstances": true
     },
+    "StarterPack": {
+      "$path": "src/ReservaNatural/StarterPack",
+      "$ignoreUnknownInstances": true
+    },
     "StarterPlayer": {
       "$path": "src/ReservaNatural/StarterPlayer",
       "$ignoreUnknownInstances": true
     },
-    "Workspace": {
-      "$path": "src/ReservaNatural/Workspace",
+    "Lighting": {
+      "$path": "src/ReservaNatural/Lighting",
+      "$ignoreUnknownInstances": true
+    },
+    "SoundService": {
+      "$path": "src/ReservaNatural/SoundService",
+      "$ignoreUnknownInstances": true
+    },
+    "Teams": {
+      "$path": "src/ReservaNatural/Teams",
+      "$ignoreUnknownInstances": true
+    },
+    "TextChatService": {
+      "$path": "src/ReservaNatural/TextChatService",
+      "$ignoreUnknownInstances": true
+    },
+    "Chat": {
+      "$path": "src/ReservaNatural/Chat",
+      "$ignoreUnknownInstances": true
+    },
+    "LocalizationService": {
+      "$path": "src/ReservaNatural/LocalizationService",
+      "$ignoreUnknownInstances": true
+    },
+    "MaterialService": {
+      "$path": "src/ReservaNatural/MaterialService",
       "$ignoreUnknownInstances": true
     }
   }

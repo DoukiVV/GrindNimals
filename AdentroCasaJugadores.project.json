@@ -1,0 +1,30 @@
+{
+  "name": "GrindNimals - AdentroCasaJugadores",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/AdentroCasaJugadores/ReplicatedStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerScriptService": {
+      "$path": "src/AdentroCasaJugadores/ServerScriptService",
+      "$ignoreUnknownInstances": true
+    },
+    "ServerStorage": {
+      "$path": "src/AdentroCasaJugadores/ServerStorage",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterGui": {
+      "$path": "src/AdentroCasaJugadores/StarterGui",
+      "$ignoreUnknownInstances": true
+    },
+    "StarterPlayer": {
+      "$path": "src/AdentroCasaJugadores/StarterPlayer",
+      "$ignoreUnknownInstances": true
+    },
+    "Workspace": {
+      "$path": "src/AdentroCasaJugadores/Workspace",
+      "$ignoreUnknownInstances": true
+    }
+  }
+}

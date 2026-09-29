@@ -1,0 +1,9 @@
+{
+  "attributes": {
+    "ActionText": "Comprar",
+    "KeyboardKeyCode": "E",
+    "MaxActivationDistance": 12.0,
+    "ObjectText": "Brizabelle"
+  },
+  "className": "Configuration"
+}

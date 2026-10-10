@@ -507,8 +507,8 @@ local function layoutKnownInterfaces()
 		-- Keep the avatar editor composition intact; only scale the entire panel.
 		local main = avatar:FindFirstChild("Main")
 		if main and main:IsA("GuiObject") then
-			local fitted = math.min(avatarScale, fitScaleForCurrentAnchor(main, avatarScale))
-			applyDeviceScale(main, fitted)
+			-- AvatarEditorClient owns its layout and animations; do not layer
+			-- another UIScale over it. Its source needs to be imported separately.
 		end
 	end
 
@@ -518,7 +518,8 @@ local function layoutKnownInterfaces()
 		clockFrame.AnchorPoint = Vector2.zero
 		clockFrame.Size = UDim2.fromOffset(110, 42)
 		clockFrame.Position = UDim2.fromOffset(12, 4)
-		applyDeviceScale(clockFrame, smallHudScale)
+		-- GameClockClient already supplies ResponsiveScale; avoid stacking a
+		-- second UIScale onto the same clock.
 	end
 
 	local tutorial = playerGui:FindFirstChild("GrindNimalsTutorialGui")
@@ -555,14 +556,11 @@ end
 local function refresh()
 	queued = false
 
+	-- Known mobile HUD containers only. Stop the previous generic walk:
+	-- it applied ViewportFitScale to unrelated menus that already have
+	-- authored UIScales (TradeFrame, admin, avatar etc.).
 	layoutKnownInterfaces()
 	scaleNamedCurrencyContainers()
-	scaleDetectedCurrency()
-	visit(playerGui, nil)
-
-	for object, state in targets do
-		fitTarget(object, state)
-	end
 end
 
 local function schedule()

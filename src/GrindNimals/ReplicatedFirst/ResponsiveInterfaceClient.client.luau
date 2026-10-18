@@ -713,10 +713,11 @@ end
 local function refresh()
 	queued = false
 	local mobile = isTouchLandscape()
-	if mobile ~= wasTouchLayout then
-		wasTouchLayout = mobile
+	local changedMode = mobile ~= wasTouchLayout
+	wasTouchLayout = mobile
+	if mobile or changedMode then
+		manageOldScalers(mobile)
 	end
-	manageOldScalers(mobile)
 	if mobile then
 		layoutTouchHUD()
 	else

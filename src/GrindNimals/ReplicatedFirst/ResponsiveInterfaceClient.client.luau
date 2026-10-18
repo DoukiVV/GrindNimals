@@ -553,14 +553,206 @@ local function visit(object, screen)
 	end
 end
 
+
+-- Mobile V2. The desktop branch below is intentionally unchanged.
+-- Only permanent HUD elements get new positions. Dynamic catalog/trade GUIs
+-- retain their own layout, avoiding conflicting nested UI scales.
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local originalGuiGeometry = setmetatable({}, {__mode = "k"})
+local originalScaleValues = setmetatable({}, {__mode = "k"})
+local originalScalerStates = setmetatable({}, {__mode = "k"})
+local scannedScreens = setmetatable({}, {__mode = "k"})
+local mobileWasActive = false
+
+local function isMobileLandscape()
+	local view = viewport()
+	return UserInputService.TouchEnabled and view.X > view.Y and view.Y <= 820
+end
+
+local function guiChild(parent, name)
+	local object = parent and parent:FindFirstChild(name)
+	if object and object:IsA("GuiObject") then
+		return object
+	end
+	return nil
+end
+
+local function mobileProperties(object, anchor, position, size)
+	if not object then return end
+	if not originalGuiGeometry[object] then
+		originalGuiGeometry[object] = {
+			anchor = object.AnchorPoint,
+			position = object.Position,
+			size = object.Size,
+			z = object.ZIndex,
+		}
+	end
+	if anchor and object.AnchorPoint ~= anchor then object.AnchorPoint = anchor end
+	if position and object.Position ~= position then object.Position = position end
+	if size and object.Size ~= size then object.Size = size end
+end
+
+local function mobileDeviceScale(object, factor)
+	if not object then return end
+	local scale = ensureNamedScale(object, "ResponsiveDeviceScale")
+	if originalScaleValues[scale] == nil then
+		originalScaleValues[scale] = scale.Scale
+	end
+	scale.Scale = factor
+	object:SetAttribute("ResponsiveManagedByAdapter", true)
+end
+
+local function disableLegacyMobileScalers()
+	for _, name in ipairs({"HUD", "AvatarEditor", "TradeGui", "GameClockGui"}) do
+		local screen = playerGui:FindFirstChild(name)
+		if screen and not scannedScreens[screen] then
+			scannedScreens[screen] = true
+			for _, descendant in ipairs(screen:GetDescendants()) do
+				if descendant:IsA("LocalScript") and descendant.Name == "DeviceResponsiveScaler" then
+					originalScalerStates[descendant] = descendant.Enabled
+					descendant.Enabled = false
+				end
+				if descendant:IsA("UIScale") and (
+					descendant.Name == "DeviceResponsiveScale"
+					or descendant.Name == "ViewportFitScale"
+				) then
+					descendant:Destroy()
+				end
+			end
+		end
+	end
+end
+
+local function restoreOriginalDesktop()
+	-- Important when switching the Studio emulator from iPhone to PC without
+	-- restarting Play: do not leave the phone's positions on the desktop.
+	for object, saved in pairs(originalGuiGeometry) do
+		if object.Parent then
+			object.AnchorPoint = saved.anchor
+			object.Position = saved.position
+			object.Size = saved.size
+			object.ZIndex = saved.z
+		end
+	end
+	for object, saved in pairs(originalScaleValues) do
+		if object.Parent then object.Scale = saved end
+	end
+	for object, enabled in pairs(originalScalerStates) do
+		if object.Parent then object.Enabled = enabled end
+	end
+	table.clear(originalGuiGeometry)
+	table.clear(originalScaleValues)
+	table.clear(originalScalerStates)
+	table.clear(scannedScreens)
+	mobileWasActive = false
+end
+
+local function correctLoadingCoverage()
+	-- Roblox's safe-area insets and old generic scalers can leave a border
+	-- around CanvasGroup backgrounds on rounded landscape phone emulators.
+	for _, name in ipairs({"GameStartLoadingGui", "WorldTeleportLoadingGui"}) do
+		local screen = playerGui:FindFirstChild(name)
+		if screen and screen:IsA("ScreenGui") then
+			screen.IgnoreGuiInset = true
+			pcall(function() screen.ScreenInsets = Enum.ScreenInsets.None end)
+			pcall(function() screen.ClipToDeviceSafeArea = false end)
+			local group = guiChild(screen, "LoadingGroup")
+			if group then
+				-- Bleed beyond every edge; only the CONTENT is scaled to fit.
+				group.AnchorPoint = Vector2.zero
+				group.Position = UDim2.fromOffset(-96, -96)
+				group.Size = UDim2.new(1, 192, 1, 192)
+				group.ClipsDescendants = false
+				for _, scale in ipairs(group:GetChildren()) do
+					if scale:IsA("UIScale") and scale.Name ~= "ResponsiveScale"
+						and scale.Name ~= "FinishScale" then
+						scale:Destroy()
+					end
+				end
+			end
+		end
+	end
+end
+
+local function layoutMobileV2()
+	local view = viewport()
+	local width, height = view.X, view.Y
+	-- The far right of the iPhone emulator contains a touch/capture overlay.
+	-- A separate action margin keeps clickable buttons clear of that zone.
+	local actionRight = math.floor(math.clamp(width * 0.225, 96, 245))
+	local currencyRight = math.floor(math.clamp(width * 0.105, 64, 124))
+	local left = math.floor(math.clamp(width * 0.035, 22, 42))
+	local buttonScale = math.clamp(height / 560, 0.62, 0.86)
+	local currencyScale = math.clamp(height / 680, 0.50, 0.75)
+	local hud = playerGui:FindFirstChild("HUD")
+
+	if hud then
+		local trade = guiChild(hud:FindFirstChild("BotonesGame"), "ButtonTrato")
+		local bag = guiChild(hud:FindFirstChild("Backpack"), "IconoBackpack")
+		local gear = guiChild(hud:FindFirstChild("Ajustes"), "ButtonConfig")
+		local money = guiChild(hud, "Dinero")
+		local diamonds = guiChild(hud, "Diamantes")
+
+		mobileProperties(trade, Vector2.new(1, 0.5),
+			UDim2.new(1, -actionRight, 0.46, 0), UDim2.fromOffset(64, 64))
+		mobileProperties(gear, Vector2.new(1, 0.5),
+			UDim2.new(1, -actionRight, 0.76, 0), UDim2.fromOffset(64, 64))
+		mobileProperties(bag, Vector2.new(0, 0.5),
+			UDim2.new(0, left, 0.52, 0), UDim2.fromOffset(72, 72))
+		mobileDeviceScale(trade, buttonScale)
+		mobileDeviceScale(gear, buttonScale)
+		mobileDeviceScale(bag, buttonScale * 0.95)
+
+		mobileProperties(money, Vector2.new(1, 0),
+			UDim2.new(1, -currencyRight, 0, -32), UDim2.fromOffset(190, 170))
+		mobileProperties(diamonds, Vector2.new(1, 0),
+			UDim2.new(1, -currencyRight - 8, 0, 19), UDim2.fromOffset(145, 130))
+		mobileDeviceScale(money, currencyScale)
+		mobileDeviceScale(diamonds, currencyScale)
+
+		-- QuickInventoryController owns the three slots. Do not overwrite its
+		-- positions/sizes during item updates (the earlier patch fought it).
+	end
+
+	local avatar = playerGui:FindFirstChild("AvatarEditor")
+	local toggle = guiChild(avatar, "Toggle")
+	if toggle then
+		local open = player:GetAttribute("AvatarEditorOpen") == true
+		if open then
+			-- Same original Vestirse button, but accessible above the catalog
+			-- instead of hidden behind the phone's capture overlay.
+			mobileProperties(toggle, Vector2.new(0.5, 0.5),
+				UDim2.fromScale(0.56, 0.115), UDim2.fromOffset(64, 64))
+			toggle.ZIndex = 1000
+			toggle.Active = true
+			toggle.Visible = true
+			mobileDeviceScale(toggle, 0.78)
+		else
+			mobileProperties(toggle, Vector2.new(1, 0.5),
+				UDim2.new(1, -actionRight, 0.61, 0), UDim2.fromOffset(64, 64))
+			toggle.ZIndex = 1000
+			mobileDeviceScale(toggle, buttonScale)
+		end
+	end
+end
+
 local function refresh()
 	queued = false
+	correctLoadingCoverage()
 
-	-- Known mobile HUD containers only. Stop the previous generic walk:
-	-- it applied ViewportFitScale to unrelated menus that already have
-	-- authored UIScales (TradeFrame, admin, avatar etc.).
-	layoutKnownInterfaces()
-	scaleNamedCurrencyContainers()
+	if isMobileLandscape() then
+		mobileWasActive = true
+		disableLegacyMobileScalers()
+		layoutMobileV2()
+	else
+		if mobileWasActive then
+			restoreOriginalDesktop()
+		end
+		-- EXACT same desktop code as main: no new desktop positions/scales.
+		layoutKnownInterfaces()
+		scaleNamedCurrencyContainers()
+	end
 end
 
 local function schedule()
@@ -593,4 +785,9 @@ local function bindCamera()
 end
 
 workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+player:GetAttributeChangedSignal("AvatarEditorOpen"):Connect(function()
+	if isMobileLandscape() then schedule() end
+end)
 bindCamera()
+task.delay(0.3, schedule)
+task.delay(1.5, schedule)

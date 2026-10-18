@@ -553,14 +553,177 @@ local function visit(object, screen)
 	end
 end
 
+
+-- Phone/tablet landscape: one layout owner for the always-visible HUD.
+-- The original DeviceResponsiveScaler indiscriminately adds UIScales to
+-- parents and children. That combines with this adapter, TradeClient,
+-- GameClockClient and QuickInventoryController and causes double scaling.
+local UserInputService = game:GetService("UserInputService")
+local legacyScalers = setmetatable({}, { __mode = "k" })
+local watchedSlots = setmetatable({}, { __mode = "k" })
+local wasTouchLayout = false
+local requestLayout = function() end
+
+local function isTouchLandscape()
+	local v = viewport()
+	return UserInputService.TouchEnabled and v.X > v.Y and v.Y <= 820
+end
+
+local function childGui(parent, name)
+	local object = parent and parent:FindFirstChild(name)
+	if object and object:IsA("GuiObject") then
+		return object
+	end
+	return nil
+end
+
+local function setProperties(object, anchor, position, size)
+	if not object then return end
+	if object.AnchorPoint ~= anchor then object.AnchorPoint = anchor end
+	if object.Position ~= position then object.Position = position end
+	if object.Size ~= size then object.Size = size end
+end
+
+local function manageOldScalers(mobile)
+	for _, guiName in ipairs({ "HUD", "TradeGui", "GameClockGui", "AvatarEditor" }) do
+		local screen = playerGui:FindFirstChild(guiName)
+		if screen then
+			for _, object in ipairs(screen:GetDescendants()) do
+				if object:IsA("LocalScript") and object.Name == "DeviceResponsiveScaler" then
+					if legacyScalers[object] == nil then
+						legacyScalers[object] = object.Enabled
+					end
+					local enabled = mobile and false or legacyScalers[object]
+					if object.Enabled ~= enabled then object.Enabled = enabled end
+				end
+			end
+			if mobile then
+				-- Only remove scales known to be created by old global adapters.
+				-- Keep original UIScale, QuickSlotScale and ResponsiveScale;
+				-- the individual button, inventory and clock scripts use those.
+				for _, object in ipairs(screen:GetDescendants()) do
+					if object:IsA("UIScale") and (
+						object.Name == "DeviceResponsiveScale"
+						or object.Name == "ViewportFitScale"
+					) then
+						object:Destroy()
+					end
+				end
+			end
+		end
+	end
+end
+
+local function configureSlot(slot, index, height)
+	if not (slot and slot:IsA("GuiObject")) then return end
+	if not watchedSlots[slot] then
+		watchedSlots[slot] = true
+		for _, prop in ipairs({ "Position", "Size" }) do
+			slot:GetPropertyChangedSignal(prop):Connect(function()
+				-- QuickInventoryController redraws its slots after equipment
+				-- changes; restore only the mobile geometry, never its contents.
+				if isTouchLandscape() then requestLayout() end
+			end)
+		end
+	end
+	local side = math.floor(math.clamp(height * 0.115, 44, 58) + 0.5)
+	local gap = math.floor(side * 1.6 + 10)
+	local bottom = math.floor(math.max(66, height * 0.15))
+	local dx = ({ [1] = 0, [2] = -gap, [3] = gap })[index]
+	setProperties(
+		slot,
+		Vector2.new(0.5, 0.5),
+		UDim2.new(0.5, dx, 1, -bottom),
+		UDim2.fromOffset(side, side)
+	)
+end
+
+local function layoutTouchHUD()
+	local view = viewport()
+	-- The ScreenGuis already use their authored insets. This additional
+	-- margin avoids round screen corners/notches and the top-right clipping.
+	local rightPad = math.floor(math.clamp(view.X * 0.052, 30, 68))
+	local leftPad = math.floor(math.clamp(view.X * 0.040, 24, 50))
+	local actionScale = math.clamp(view.Y / 540, 0.66, 0.92)
+	local bagScale = math.clamp(actionScale * 0.86, 0.60, 0.80)
+	local currencyScale = math.clamp(view.Y / 560, 0.52, 0.78)
+
+	local hud = playerGui:FindFirstChild("HUD")
+	if hud then
+		local actions = hud:FindFirstChild("BotonesGame")
+		local backpack = hud:FindFirstChild("Backpack")
+		local settings = hud:FindFirstChild("Ajustes")
+		local trade = childGui(actions, "ButtonTrato")
+		local bag = childGui(backpack, "IconoBackpack")
+		local gear = childGui(settings, "ButtonConfig")
+		local money = childGui(hud, "Dinero")
+		local diamonds = childGui(hud, "Diamantes")
+
+		-- Consistent right-hand column, separate from the currencies.
+		-- All positions are relative to each ScreenGui, not to an icon's
+		-- current size, so the picture stays put when its hover tween runs.
+		setProperties(trade, Vector2.new(1, 0.5),
+			UDim2.new(1, -rightPad, 0.47, 0), UDim2.fromOffset(64, 64))
+		setProperties(gear, Vector2.new(1, 0.5),
+			UDim2.new(1, -rightPad, 0.77, 0), UDim2.fromOffset(64, 64))
+		setProperties(bag, Vector2.new(0, 0.5),
+			UDim2.new(0, leftPad, 0.53, 0), UDim2.fromOffset(72, 72))
+		applyDeviceScale(trade, actionScale)
+		applyDeviceScale(gear, actionScale)
+		applyDeviceScale(bag, bagScale)
+
+		-- Dinero/Diamantes are image containers with large transparent areas.
+		-- The former adapter first placed them at -34/+18, then overwrote
+		-- them at +8/+56 in scaleNamedCurrencyContainers(). Do it ONCE.
+		setProperties(money, Vector2.new(1, 0),
+			UDim2.new(1, -rightPad, 0, -31), UDim2.fromOffset(190, 170))
+		setProperties(diamonds, Vector2.new(1, 0),
+			UDim2.new(1, -rightPad - 6, 0, 19), UDim2.fromOffset(145, 130))
+		applyDeviceScale(money, currencyScale)
+		applyDeviceScale(diamonds, currencyScale)
+
+		local settingsFrame = childGui(settings, "Frame")
+		if settingsFrame then
+			setProperties(settingsFrame, Vector2.new(0.5, 0.5),
+				UDim2.fromScale(0.5, 0.5), UDim2.fromOffset(270, 170))
+			applyDeviceScale(settingsFrame, math.min(1,
+				(view.X - 56) / 270, (view.Y - 54) / 170))
+		end
+
+		-- The hotbar is independently generated and re-rendered by
+		-- QuickInventoryController. Only correct positions and overall size.
+		local inventory = hud:FindFirstChild("Inventario")
+		if inventory then
+			for i = 1, 3 do
+				configureSlot(inventory:FindFirstChild(tostring(i)), i, view.Y)
+			end
+		end
+	end
+
+	local avatar = playerGui:FindFirstChild("AvatarEditor")
+	local avatarToggle = childGui(avatar, "Toggle")
+	setProperties(avatarToggle, Vector2.new(1, 0.5),
+		UDim2.new(1, -rightPad, 0.62, 0), UDim2.fromOffset(64, 64))
+	applyDeviceScale(avatarToggle, actionScale)
+
+	-- Leave GameClockClient, TradeClient and AvatarEditorClient in charge of
+	-- their own content/panels; we removed only the redundant generic scales.
+end
+
 local function refresh()
 	queued = false
-
-	-- Known mobile HUD containers only. Stop the previous generic walk:
-	-- it applied ViewportFitScale to unrelated menus that already have
-	-- authored UIScales (TradeFrame, admin, avatar etc.).
-	layoutKnownInterfaces()
-	scaleNamedCurrencyContainers()
+	local mobile = isTouchLandscape()
+	if mobile ~= wasTouchLayout then
+		wasTouchLayout = mobile
+	end
+	manageOldScalers(mobile)
+	if mobile then
+		layoutTouchHUD()
+	else
+		-- Desktop stays exactly on the known working layout.
+		layoutKnownInterfaces()
+		scaleNamedCurrencyContainers()
+	end
 end
 
 local function schedule()
@@ -593,4 +756,8 @@ local function bindCamera()
 end
 
 workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+requestLayout = schedule
 bindCamera()
+-- StarterGui and script-created screens may become available later.
+task.delay(0.4, schedule)
+task.delay(1.5, schedule)

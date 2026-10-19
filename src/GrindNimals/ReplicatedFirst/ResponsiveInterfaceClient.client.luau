@@ -1,4 +1,4 @@
--- GrindNimals | Mobile HUD V5 - phone small/large and tablet profiles, desktop unchanged
+-- GrindNimals | Mobile HUD V6 - original currency artwork proportions and raised right buttons
 -- Authored from the game's actual HUD and LocalScripts in the .rbxl backup.
 --
 -- Desktop and laptop: this script makes NO UI modifications.
@@ -20,6 +20,7 @@ local visitedGuis = setmetatable({}, { __mode = "k" })
 local slotConnections = setmetatable({}, { __mode = "k" })
 local touchButtonsHidden = setmetatable({}, { __mode = "k" })
 local oldResponsiveScales = setmetatable({}, { __mode = "k" })
+local originalTextScaled = setmetatable({}, { __mode = "k" })
 
 local queued = false
 local wasMobile = false
@@ -53,7 +54,7 @@ local function deviceProfile(view)
             bagSize = 76, bagScale = 0.86, cashScale = 0.66,
             slot = 51, spacing = 89, bottom = 64,
             clockBoost = 1.38, clockY = 10,
-            tradeY = 0.37, avatarY = 0.50, gearY = 0.63,
+            tradeY = 0.29, avatarY = 0.43, gearY = 0.57,
         }
     elseif phone then
         return {
@@ -63,7 +64,7 @@ local function deviceProfile(view)
             bagSize = 79, bagScale = 0.90, cashScale = 0.72,
             slot = 56, spacing = 108, bottom = 75,
             clockBoost = 1.42, clockY = 12,
-            tradeY = 0.37, avatarY = 0.50, gearY = 0.63,
+            tradeY = 0.29, avatarY = 0.43, gearY = 0.57,
         }
     else
         return {
@@ -73,7 +74,7 @@ local function deviceProfile(view)
             bagSize = 83, bagScale = 0.94, cashScale = 0.82,
             slot = 62, spacing = 116, bottom = 90,
             clockBoost = 1.30, clockY = 13,
-            tradeY = 0.36, avatarY = 0.50, gearY = 0.64,
+            tradeY = 0.29, avatarY = 0.43, gearY = 0.58,
         }
     end
 end
@@ -159,12 +160,16 @@ local function restoreForPC()
     for s, prior in pairs(oldResponsiveScales) do
         if s.Parent then s.Scale = prior end
     end
+    for label, old in pairs(originalTextScaled) do
+        if label.Parent then label.TextScaled = old end
+    end
     for s, enabled in pairs(originalScriptStates) do
         if s.Parent then s.Enabled = enabled end
     end
     table.clear(originalProperties)
     table.clear(originalScriptStates)
     table.clear(oldResponsiveScales)
+    table.clear(originalTextScaled)
     table.clear(managedScales)
     table.clear(visitedGuis)
     wasMobile = false
@@ -254,16 +259,36 @@ local function layoutPhone()
         scaleGui(gear, profile.actionScale)
         scaleGui(bag, profile.bagScale)
 
-        -- Preserve source artwork proportions to avoid stretching currency
-        -- containers that include their own transparent decorative margins.
+        -- Use the artwork's original 1080p aspect ratios:
+        --   Dinero:    0.2121W : 0.3873H => approximately 0.974 : 1
+        --   Diamantes: 0.1537W : 0.3087H => approximately 0.886 : 1
+        -- These are images with embedded number TextLabels. Narrowing only
+        -- their height deforms the icons and crowds the text.
+        local imageScale = math.clamp(view.Y / 660, 0.63, 0.83)
+        local moneyY = -math.floor(math.clamp(view.Y * 0.11, 38, 70))
+        local diamondY = math.floor(math.clamp(view.Y * 0.075, 30, 55))
         place(money, Vector2.new(1, 0),
-            UDim2.new(1, -currencyRight, 0, -22),
-            UDim2.fromOffset(190, 170))
+            UDim2.new(1, -currencyRight, 0, moneyY),
+            UDim2.fromOffset(190, 195))
         place(diamonds, Vector2.new(1, 0),
-            UDim2.new(1, -currencyRight - 7, 0, 30),
-            UDim2.fromOffset(145, 130))
-        scaleGui(money, profile.cashScale)
-        scaleGui(diamonds, profile.cashScale)
+            UDim2.new(1, -(currencyRight - 14), 0, diamondY),
+            UDim2.fromOffset(145, 164))
+        scaleGui(money, imageScale)
+        scaleGui(diamonds, imageScale)
+
+        -- In the original Studio backup Money.TextLabel used 50px and
+        -- Diamonds.TextLabel 35px without TextScaled. At phone widths,
+        -- values such as "10,592" overflow their smaller text regions.
+        -- Scale to available space while retaining authored alignment.
+        for _, container in ipairs({money, diamonds}) do
+            local label = container and container:FindFirstChild("TextLabel")
+            if label and label:IsA("TextLabel") then
+                if originalTextScaled[label] == nil then
+                    originalTextScaled[label] = label.TextScaled
+                end
+                label.TextScaled = true
+            end
+        end
 
         -- QuickInventoryController owns contents/actions. Reposition only
         -- the three original HUD image buttons, not any duplicate CAS keys.

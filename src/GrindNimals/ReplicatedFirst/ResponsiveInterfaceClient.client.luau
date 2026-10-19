@@ -1,4 +1,4 @@
--- GrindNimals | Mobile HUD V7 - diamond text fitted inside its artwork
+-- GrindNimals | Mobile HUD V8 - diamond amount font constrained inside ribbon
 -- Authored from the game's actual HUD and LocalScripts in the .rbxl backup.
 --
 -- Desktop and laptop: this script makes NO UI modifications.
@@ -22,6 +22,7 @@ local touchButtonsHidden = setmetatable({}, { __mode = "k" })
 local oldResponsiveScales = setmetatable({}, { __mode = "k" })
 local originalTextScaled = setmetatable({}, { __mode = "k" })
 local originalDiamondWrap = setmetatable({}, { __mode = "k" })
+local createdDiamondFontLimits = setmetatable({}, { __mode = "k" })
 
 local queued = false
 local wasMobile = false
@@ -167,6 +168,9 @@ local function restoreForPC()
     for label, old in pairs(originalDiamondWrap) do
         if label.Parent then label.TextWrapped = old end
     end
+    for limit in pairs(createdDiamondFontLimits) do
+        if limit.Parent then limit:Destroy() end
+    end
     for s, enabled in pairs(originalScriptStates) do
         if s.Parent then s.Enabled = enabled end
     end
@@ -175,6 +179,7 @@ local function restoreForPC()
     table.clear(oldResponsiveScales)
     table.clear(originalTextScaled)
     table.clear(originalDiamondWrap)
+    table.clear(createdDiamondFontLimits)
     table.clear(managedScales)
     table.clear(visitedGuis)
     wasMobile = false
@@ -278,9 +283,11 @@ local function layoutPhone()
             UDim2.fromOffset(190, 195))
         place(diamonds, Vector2.new(1, 0),
             UDim2.new(1, -(currencyRight - 8), 0, diamondY),
-            UDim2.fromOffset(132, 148))
+            UDim2.fromOffset(145, 164))
         scaleGui(money, imageScale)
-        scaleGui(diamonds, imageScale * 0.82)
+        -- 72% of the money graphic's apparent width: smaller, but the
+        -- white stripe remains large enough for a multi-digit amount.
+        scaleGui(diamonds, imageScale * 0.94)
 
         -- In the original Studio backup Money.TextLabel used 50px and
         -- Diamonds.TextLabel 35px without TextScaled. At phone widths,
@@ -296,21 +303,30 @@ local function layoutPhone()
             end
         end
 
-        -- Actual StarterGui > HUD > Diamantes > TextLabel from the backup:
-        -- Position = (0.193759, 0.396578), Size = (0.604481, 0.200132)
-        -- TextWrapped = true, TextSize = 35. Once the gem is reduced on mobile,
-        -- five-digit values wrap into two lines / clip against its frame.
-        -- Expand only the text field, not the artwork, and prevent wrapping.
+        -- Number belongs inside the WHITE stripe of the diamond artwork,
+        -- not across the entire image. TextScaled without a size constraint
+        -- caused V7 to render huge black digits past the stripe. The max font
+        -- is deliberately lower than Money.TextLabel's visual size.
         local diamondText = diamonds and diamonds:FindFirstChild("TextLabel")
         if diamondText and diamondText:IsA("TextLabel") then
             if originalDiamondWrap[diamondText] == nil then
                 originalDiamondWrap[diamondText] = diamondText.TextWrapped
             end
             place(diamondText, Vector2.zero,
-                UDim2.fromScale(0.24, 0.385),
-                UDim2.fromScale(0.755, 0.24))
+                UDim2.fromScale(0.265, 0.405),
+                UDim2.fromScale(0.65, 0.19))
             diamondText.TextWrapped = false
             diamondText.TextScaled = true
+
+            local limit = diamondText:FindFirstChild("GNMobileDiamondFontLimit")
+            if not limit then
+                limit = Instance.new("UITextSizeConstraint")
+                limit.Name = "GNMobileDiamondFontLimit"
+                limit.MinTextSize = 7
+                limit.MaxTextSize = 19
+                limit.Parent = diamondText
+                createdDiamondFontLimits[limit] = true
+            end
         end
 
         -- QuickInventoryController owns contents/actions. Reposition only

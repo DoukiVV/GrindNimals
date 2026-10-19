@@ -311,7 +311,6 @@ local function layoutPhone()
                 UDim2.fromScale(0.755, 0.24))
             diamondText.TextWrapped = false
             diamondText.TextScaled = true
-            diamondText.TextTruncate = Enum.TextTruncate.None
         end
 
         -- QuickInventoryController owns contents/actions. Reposition only

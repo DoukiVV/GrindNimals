@@ -1,4 +1,4 @@
--- GrindNimals | Mobile HUD V6 - original currency artwork proportions and raised right buttons
+-- GrindNimals | Mobile HUD V7 - diamond text fitted inside its artwork
 -- Authored from the game's actual HUD and LocalScripts in the .rbxl backup.
 --
 -- Desktop and laptop: this script makes NO UI modifications.

@@ -1,4 +1,4 @@
--- GrindNimals | Mobile HUD V4 - stable safe areas and original hotbar only
+-- GrindNimals | Mobile HUD V5 - phone small/large and tablet profiles, desktop unchanged
 -- Authored from the game's actual HUD and LocalScripts in the .rbxl backup.
 --
 -- Desktop and laptop: this script makes NO UI modifications.
@@ -19,6 +19,7 @@ local managedScales = setmetatable({}, { __mode = "k" })
 local visitedGuis = setmetatable({}, { __mode = "k" })
 local slotConnections = setmetatable({}, { __mode = "k" })
 local touchButtonsHidden = setmetatable({}, { __mode = "k" })
+local oldResponsiveScales = setmetatable({}, { __mode = "k" })
 
 local queued = false
 local wasMobile = false
@@ -34,7 +35,47 @@ local function isMobile()
     local size = viewport()
     return UserInputService.TouchEnabled
         and size.X > size.Y
-        and size.Y <= 820
+        and size.Y <= 1100
+end
+
+
+-- Use aspect ratio AND usable viewport height: a high-resolution iPhone
+-- should not accidentally be treated as a tablet.
+local function deviceProfile(view)
+    local aspect = view.X / math.max(view.Y, 1)
+    local phone = aspect >= 1.90 or view.Y <= 580
+
+    if phone and (view.X <= 950 or view.Y <= 450) then
+        return {
+            name = "telefono-pequeno",
+            right = 54, bag = 40, cash = 95, clock = 215,
+            actionSize = 58, actionScale = 0.76,
+            bagSize = 76, bagScale = 0.86, cashScale = 0.66,
+            slot = 51, spacing = 89, bottom = 64,
+            clockBoost = 1.38, clockY = 10,
+            tradeY = 0.37, avatarY = 0.50, gearY = 0.63,
+        }
+    elseif phone then
+        return {
+            name = "telefono-grande",
+            right = 75, bag = 56, cash = 156, clock = 335,
+            actionSize = 62, actionScale = 0.79,
+            bagSize = 79, bagScale = 0.90, cashScale = 0.72,
+            slot = 56, spacing = 108, bottom = 75,
+            clockBoost = 1.42, clockY = 12,
+            tradeY = 0.37, avatarY = 0.50, gearY = 0.63,
+        }
+    else
+        return {
+            name = "tablet",
+            right = 85, bag = 67, cash = 177, clock = 320,
+            actionSize = 68, actionScale = 0.87,
+            bagSize = 83, bagScale = 0.94, cashScale = 0.82,
+            slot = 62, spacing = 116, bottom = 90,
+            clockBoost = 1.30, clockY = 13,
+            tradeY = 0.36, avatarY = 0.50, gearY = 0.64,
+        }
+    end
 end
 
 local function guiChild(parent, name)
@@ -76,22 +117,27 @@ local function scaleGui(obj, value)
 end
 
 local function stopDuplicatedScalers()
-    -- These original scripts scale every GuiObject recursively. Disable them
-    -- only on mobile, and remove only the UI scales created by old adapters.
+    -- Disable the original generic scaler only in landscape touch mode.
+    -- Neutralize its UIScales reversibly (do not Destroy them), allowing
+    -- switching back to PC preview in the same Play session.
     for _, name in ipairs({ "HUD", "AvatarEditor", "TradeGui", "GameClockGui" }) do
         local screen = playerGui:FindFirstChild(name)
-        if screen and not visitedGuis[screen] then
-            visitedGuis[screen] = true
+        if screen then
             for _, desc in ipairs(screen:GetDescendants()) do
                 if desc:IsA("LocalScript") and desc.Name == "DeviceResponsiveScaler" then
-                    originalScriptStates[desc] = desc.Enabled
-                    desc.Enabled = false
+                    if originalScriptStates[desc] == nil then
+                        originalScriptStates[desc] = desc.Enabled
+                    end
+                    if desc.Enabled then desc.Enabled = false end
                 elseif desc:IsA("UIScale") and (
                     desc.Name == "DeviceResponsiveScale"
                     or desc.Name == "ResponsiveDeviceScale"
                     or desc.Name == "ViewportFitScale"
                 ) then
-                    desc:Destroy()
+                    if oldResponsiveScales[desc] == nil then
+                        oldResponsiveScales[desc] = desc.Scale
+                    end
+                    if desc.Scale ~= 1 then desc.Scale = 1 end
                 end
             end
         end
@@ -110,11 +156,15 @@ local function restoreForPC()
     for s in pairs(managedScales) do
         if s.Parent then s:Destroy() end
     end
+    for s, prior in pairs(oldResponsiveScales) do
+        if s.Parent then s.Scale = prior end
+    end
     for s, enabled in pairs(originalScriptStates) do
         if s.Parent then s.Enabled = enabled end
     end
     table.clear(originalProperties)
     table.clear(originalScriptStates)
+    table.clear(oldResponsiveScales)
     table.clear(managedScales)
     table.clear(visitedGuis)
     wasMobile = false
@@ -126,26 +176,16 @@ local function manageSlot(slot, index, view)
         local connections = {}
         for _, name in ipairs({ "Position", "Size" }) do
             table.insert(connections, slot:GetPropertyChangedSignal(name):Connect(function()
-                -- QuickInventoryController rerenders on equip/unequip.
-                -- Apply geometry after its render, never touch item data.
                 if isMobile() then requestLayout() end
             end))
         end
         slotConnections[slot] = connections
     end
-
-    -- Round slot artwork uses 1.48x/1.56x image layers: leave more
-    -- breathing room than the base button's dimensions suggest.
-    local side = math.floor(math.clamp(view.Y * 0.10, 46, 54) + 0.5)
-    local spacing = math.floor(math.clamp(view.X * 0.098, 85, 113) + 0.5)
-    -- Use a nearly fixed inset, instead of a percentage that raises the
-    -- hotbar as the device resolution grows.
-    local bottom = math.floor(math.clamp(view.Y * 0.163, 77, 85))
-    local offset = ({ [1] = 0, [2] = -spacing, [3] = spacing })[index]
-
+    local profile = deviceProfile(view)
+    local offset = ({ [1] = 0, [2] = -profile.spacing, [3] = profile.spacing })[index]
     place(slot, Vector2.new(0.5, 0.5),
-        UDim2.new(0.5, offset, 1, -bottom),
-        UDim2.fromOffset(side, side))
+        UDim2.new(0.5, offset, 1, -profile.bottom),
+        UDim2.fromOffset(profile.slot, profile.slot))
 end
 
 local function fixLoadingCover()
@@ -182,17 +222,15 @@ end
 
 local function layoutPhone()
     local view = viewport()
-    local height, width = view.Y, view.X
+    local width = view.X
+    local profile = deviceProfile(view)
 
-    -- A deliberate three-button column at the far right, not in the center.
-    -- y stops above the bottom emulator touch/capture controls.
-    local actionRight = math.floor(math.clamp(width * 0.216, 145, 235))
-    local currencyRight = math.floor(math.clamp(width * 0.17, 120, 205))
-    local bagLeft = math.floor(math.clamp(width * 0.070, 62, 93))
-
-    local actionScale = math.clamp(height / 650, 0.62, 0.78)
-    local bagScale = math.clamp(height / 690, 0.60, 0.74)
-    local cashScale = math.clamp(height / 870, 0.46, 0.64)
+    -- "Margin" is the center distance from the respective screen edge.
+    -- The right column stays reachable without invading the currencies.
+    local actionRight = math.max(profile.right, math.floor(width * 0.045))
+    local bagLeft = math.max(30, math.min(profile.bag, math.floor(width * 0.075)))
+    local currencyRight = math.max(profile.cash, math.floor(width * 0.115))
+    local clockX = math.min(profile.clock, math.floor(width * 0.275))
 
     local hud = playerGui:FindFirstChild("HUD")
     if hud then
@@ -203,27 +241,32 @@ local function layoutPhone()
         local diamonds = guiChild(hud, "Diamantes")
 
         place(trade, Vector2.new(0.5, 0.5),
-            UDim2.new(1, -actionRight, 0.35, 0),
-            UDim2.fromOffset(60, 60))
+            UDim2.new(1, -actionRight, profile.tradeY, 0),
+            UDim2.fromOffset(profile.actionSize, profile.actionSize))
         place(gear, Vector2.new(0.5, 0.5),
-            UDim2.new(1, -actionRight, 0.61, 0),
-            UDim2.fromOffset(60, 60))
+            UDim2.new(1, -actionRight, profile.gearY, 0),
+            UDim2.fromOffset(profile.actionSize, profile.actionSize))
         place(bag, Vector2.new(0.5, 0.5),
-            UDim2.new(0, bagLeft, 0.48, 0),
-            UDim2.fromOffset(68, 68))
-        scaleGui(trade, actionScale)
-        scaleGui(gear, actionScale)
-        scaleGui(bag, bagScale)
+            UDim2.new(0, bagLeft, 0.49, 0),
+            UDim2.fromOffset(profile.bagSize, profile.bagSize))
 
+        scaleGui(trade, profile.actionScale)
+        scaleGui(gear, profile.actionScale)
+        scaleGui(bag, profile.bagScale)
+
+        -- Preserve source artwork proportions to avoid stretching currency
+        -- containers that include their own transparent decorative margins.
         place(money, Vector2.new(1, 0),
-            UDim2.new(1, -currencyRight, 0, -26),
+            UDim2.new(1, -currencyRight, 0, -22),
             UDim2.fromOffset(190, 170))
         place(diamonds, Vector2.new(1, 0),
-            UDim2.new(1, -currencyRight - 8, 0, 21),
+            UDim2.new(1, -currencyRight - 7, 0, 30),
             UDim2.fromOffset(145, 130))
-        scaleGui(money, cashScale)
-        scaleGui(diamonds, cashScale)
+        scaleGui(money, profile.cashScale)
+        scaleGui(diamonds, profile.cashScale)
 
+        -- QuickInventoryController owns contents/actions. Reposition only
+        -- the three original HUD image buttons, not any duplicate CAS keys.
         local inventory = hud:FindFirstChild("Inventario")
         if inventory then
             for index = 1, 3 do
@@ -235,13 +278,11 @@ local function layoutPhone()
     local avatar = playerGui:FindFirstChild("AvatarEditor")
     local toggle = guiChild(avatar, "Toggle")
     if toggle then
-        -- AvatarEditorClient already connects Toggle.Activated to its
-        -- open/close/save function. Keep that SAME button accessible when
-        -- Main/Catalog is open; do not invent a second close action.
+        -- Same button that AvatarEditorClient uses to open and close.
         place(toggle, Vector2.new(0.5, 0.5),
-            UDim2.new(1, -actionRight, 0.48, 0),
-            UDim2.fromOffset(60, 60))
-        scaleGui(toggle, actionScale)
+            UDim2.new(1, -actionRight, profile.avatarY, 0),
+            UDim2.fromOffset(profile.actionSize, profile.actionSize))
+        scaleGui(toggle, profile.actionScale)
         remember(toggle)
         toggle.ZIndex = math.max(120, toggle.ZIndex)
         if player:GetAttribute("AvatarEditorOpen") == true then
@@ -250,14 +291,14 @@ local function layoutPhone()
         end
     end
 
-    -- Clock is positioned after Roblox's top-left menu, with its ORIGINAL
-    -- ResponsiveScale controlled only by GameClockClient (not doubled).
     local clock = playerGui:FindFirstChild("GameClockGui")
     local clockFrame = guiChild(clock, "ClockFrame")
     if clockFrame then
         place(clockFrame, Vector2.zero,
-            UDim2.fromOffset(math.floor(math.clamp(width * 0.265, 255, 320)), 10),
-            nil)
+            UDim2.fromOffset(clockX, profile.clockY), nil)
+        -- GameClockClient already sets ResponsiveScale to 0.92..1.28.
+        -- GNMobileScale is a controlled readability boost, mobile only.
+        scaleGui(clockFrame, profile.clockBoost)
     end
 
     fixLoadingCover()

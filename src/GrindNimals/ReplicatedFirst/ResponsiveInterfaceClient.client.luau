@@ -21,6 +21,7 @@ local slotConnections = setmetatable({}, { __mode = "k" })
 local touchButtonsHidden = setmetatable({}, { __mode = "k" })
 local oldResponsiveScales = setmetatable({}, { __mode = "k" })
 local originalTextScaled = setmetatable({}, { __mode = "k" })
+local originalDiamondWrap = setmetatable({}, { __mode = "k" })
 
 local queued = false
 local wasMobile = false
@@ -163,6 +164,9 @@ local function restoreForPC()
     for label, old in pairs(originalTextScaled) do
         if label.Parent then label.TextScaled = old end
     end
+    for label, old in pairs(originalDiamondWrap) do
+        if label.Parent then label.TextWrapped = old end
+    end
     for s, enabled in pairs(originalScriptStates) do
         if s.Parent then s.Enabled = enabled end
     end
@@ -170,6 +174,7 @@ local function restoreForPC()
     table.clear(originalScriptStates)
     table.clear(oldResponsiveScales)
     table.clear(originalTextScaled)
+    table.clear(originalDiamondWrap)
     table.clear(managedScales)
     table.clear(visitedGuis)
     wasMobile = false
@@ -266,15 +271,16 @@ local function layoutPhone()
         -- their height deforms the icons and crowds the text.
         local imageScale = math.clamp(view.Y / 660, 0.63, 0.83)
         local moneyY = -math.floor(math.clamp(view.Y * 0.11, 38, 70))
-        local diamondY = math.floor(math.clamp(view.Y * 0.075, 30, 55))
+        -- Match the phone layout tested previously: smaller diamonds below cash.
+        local diamondY = moneyY + 58
         place(money, Vector2.new(1, 0),
             UDim2.new(1, -currencyRight, 0, moneyY),
             UDim2.fromOffset(190, 195))
         place(diamonds, Vector2.new(1, 0),
-            UDim2.new(1, -(currencyRight - 14), 0, diamondY),
-            UDim2.fromOffset(145, 164))
+            UDim2.new(1, -(currencyRight - 8), 0, diamondY),
+            UDim2.fromOffset(132, 148))
         scaleGui(money, imageScale)
-        scaleGui(diamonds, imageScale)
+        scaleGui(diamonds, imageScale * 0.82)
 
         -- In the original Studio backup Money.TextLabel used 50px and
         -- Diamonds.TextLabel 35px without TextScaled. At phone widths,
@@ -288,6 +294,24 @@ local function layoutPhone()
                 end
                 label.TextScaled = true
             end
+        end
+
+        -- Actual StarterGui > HUD > Diamantes > TextLabel from the backup:
+        -- Position = (0.193759, 0.396578), Size = (0.604481, 0.200132)
+        -- TextWrapped = true, TextSize = 35. Once the gem is reduced on mobile,
+        -- five-digit values wrap into two lines / clip against its frame.
+        -- Expand only the text field, not the artwork, and prevent wrapping.
+        local diamondText = diamonds and diamonds:FindFirstChild("TextLabel")
+        if diamondText and diamondText:IsA("TextLabel") then
+            if originalDiamondWrap[diamondText] == nil then
+                originalDiamondWrap[diamondText] = diamondText.TextWrapped
+            end
+            place(diamondText, Vector2.zero,
+                UDim2.fromScale(0.24, 0.385),
+                UDim2.fromScale(0.755, 0.24))
+            diamondText.TextWrapped = false
+            diamondText.TextScaled = true
+            diamondText.TextTruncate = Enum.TextTruncate.None
         end
 
         -- QuickInventoryController owns contents/actions. Reposition only

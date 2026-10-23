@@ -374,6 +374,9 @@ local function scaleNamedCurrencyContainers()
 end
 
 local function layoutKnownInterfaces()
+	-- Ajuste de los botones derechos: trato, vestirse y configuraciones.
+	-- Subir este valor para acercarlos mas al borde derecho.
+	local RIGHT_BUTTON_SHIFT = 54
 	local compact = isCompact()
 	local landscapePhone = isLandscapePhone()
 	local proportional = viewportScale()
@@ -425,9 +428,9 @@ local function layoutKnownInterfaces()
 			tradeButton.AnchorPoint = Vector2.new(1, 0.5)
 			tradeButton.Size = UDim2.fromOffset(64, 64)
 			if landscapePhone then
-				tradeButton.Position = UDim2.new(1, -18, 0.37, 0)
+				tradeButton.Position = UDim2.new(1, -18 + RIGHT_BUTTON_SHIFT, 0.37, 0)
 			else
-				tradeButton.Position = UDim2.new(1, -12, 0, 182)
+				tradeButton.Position = UDim2.new(1, -12 + RIGHT_BUTTON_SHIFT, 0, 182)
 			end
 			applyDeviceScale(tradeButton, buttonScale)
 		end
@@ -449,9 +452,9 @@ local function layoutKnownInterfaces()
 			settingsButton.AnchorPoint = Vector2.new(1, 0.5)
 			settingsButton.Size = UDim2.fromOffset(64, 64)
 			if landscapePhone then
-				settingsButton.Position = UDim2.new(1, -18, 0.63, 0)
+				settingsButton.Position = UDim2.new(1, -18 + RIGHT_BUTTON_SHIFT, 0.63, 0)
 			else
-				settingsButton.Position = UDim2.new(1, -12, 0, 318)
+				settingsButton.Position = UDim2.new(1, -12 + RIGHT_BUTTON_SHIFT, 0, 318)
 			end
 			applyDeviceScale(settingsButton, buttonScale)
 		end
@@ -497,9 +500,9 @@ local function layoutKnownInterfaces()
 			toggle.AnchorPoint = Vector2.new(1, 0.5)
 			toggle.Size = UDim2.fromOffset(64, 64)
 			if landscapePhone then
-				toggle.Position = UDim2.new(1, -18, 0.50, 0)
+				toggle.Position = UDim2.new(1, -18 + RIGHT_BUTTON_SHIFT, 0.50, 0)
 			else
-				toggle.Position = UDim2.new(1, -12, 0, 250)
+				toggle.Position = UDim2.new(1, -12 + RIGHT_BUTTON_SHIFT, 0, 250)
 			end
 			applyDeviceScale(toggle, buttonScale)
 		end
